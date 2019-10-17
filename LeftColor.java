@@ -23,10 +23,11 @@ public class LeftColor implements Behavior {
 	
 	public boolean takeControl(){
 		
-		if(7 == me.getLeftColourSensor() && 7 != me.getRightColourSensor()) {
+		if((7 == me.getLeftColourSensor() || 13 == me.getLeftColourSensor()) && 7 != me.getRightColourSensor()) {
 			left = true;
 			return left;
 		}
+		
 		
 		left = false;
 		return false;

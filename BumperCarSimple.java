@@ -27,7 +27,7 @@ public class BumperCarSimple {
 		Behavior b3 = new LeftColor(me);
 		Behavior b4 = new RightColor(me);
 		Behavior b5 = new BothColors(me);
-
+	
 		Behavior [] bArray = {b1, b2, b3, b4, b5};
 		Arbitrator arby = new Arbitrator(bArray);
 

@@ -60,8 +60,8 @@ public class PilotMonitor extends Thread {
 
     		// Note that the following exploit additional information available from the
     		// MovePilot.  This could be extended to include speed, angular velocity, pose etc.
-    		lcd.drawString("Motion: "+robot.getPilot().isMoving(), 0, 60, 0);
-    		lcd.drawString("  type: "+robot.getPilot().getMovement().getMoveType(), 0, 70, 0);
+    		//lcd.drawString("Motion: "+robot.getPilot().isMoving(), 0, 60, 0);
+    		//lcd.drawString("  type: "+robot.getPilot().getMovement().getMoveType(), 0, 70, 0);
     		lcd.drawString(msg, 0, 100, 0);    		
 
     		try{
@@ -76,6 +76,7 @@ public class PilotMonitor extends Thread {
     			System.exit(0);
     		}
 	    }
+    	
     }
     
 

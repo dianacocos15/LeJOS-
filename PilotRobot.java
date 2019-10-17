@@ -33,7 +33,9 @@ public class PilotRobot {
 	private MovePilot pilot;
 	//private EV3LargeRegulatedMotor motorL, motorR;
 	private EV3ColorSensor leftColor, rightColor;
-
+	private int currentPosition;
+	
+	
 	public PilotRobot() {
 		Brick myEV3 = BrickFinder.getDefault();
 		//Motor.C.rotate(90);
@@ -119,17 +121,32 @@ public class PilotRobot {
     	return angleSample[0];
 	}
 	
-//	public void rotate(int angle) {
-//		float beginAngle = getAngle();
-//		pilot.rotate(angle);
-//		float finalAngle = getAngle();
-//		float diff = finalAngle - beginAngle;
-//		pilot.rotate(diff);
-//	}
-	
 	public MovePilot getPilot() {
 		return pilot;
 	}
+	
+	public void rotate(double value) {
+		pilot.setAngularAcceleration(12);
+
+		double initialAngle = getAngle(); //gyroscope
+		
+		double finalAngle = getAngle();
+		double difference = finalAngle - initialAngle;
+		
+		while (value != difference) {
+			finalAngle = getAngle();
+			difference = finalAngle - initialAngle;
+			pilot.rotate(value - difference);
+			
+		}
+		
+	}
+	
+	//Rotate head of the ultrasound sensor
+	public void rotateHead(int position) {
+		Motor.C.rotateTo(position);
+	}
+	
 }
 
 //while left color is 7 and right color is not 7

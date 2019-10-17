@@ -52,9 +52,10 @@ public class DriveForward implements Behavior {
 		
 		// Go forward
 		MovePilot mypilot = me.getPilot();
-		mypilot.setLinearSpeed(3);
-		mypilot.forward();
-	
+		mypilot.setLinearAcceleration(15);
+		mypilot.setLinearSpeed(8);
+		mypilot.travel(100, true);
+		mypilot.setLinearAcceleration(100);
 		
 		// While we can run, yield the thread to let other threads run.
 		// It is important that no action function blocks any otherf action.
