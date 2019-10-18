@@ -18,13 +18,14 @@ import lejos.hardware.port.SensorPort;
 import lejos.robotics.navigation.MovePilot;
 
 public class DriveForward implements Behavior {
-
 	public boolean suppressed;
 	private PilotRobot me;
+	private MovePilot pilot;
 
 	// Constructor - store a reference to the robot
 	public DriveForward(PilotRobot robot){
     	 me = robot;
+    	 pilot = me.getPilot();
     }
 
 	// When called, this should stop action()
@@ -39,7 +40,10 @@ public class DriveForward implements Behavior {
 	// not take control.  If no behaviour takes control, the
 	// Arbritrator will end.
 	public boolean takeControl(){
-		return true;	
+		if (!pilot.isMoving()) {
+			return true;	
+		}
+		return false;	
 	}
 
 	// This is our action function.  This starts the motor running
@@ -47,23 +51,65 @@ public class DriveForward implements Behavior {
 	// to suppress our action, in which case we stop.
 	public void action() {
 		// Allow this method to run
+		me.setBehavior("Drive Forward");
 		suppressed = false;
 		
 		
 		// Go forward
-		MovePilot mypilot = me.getPilot();
-		mypilot.setLinearAcceleration(15);
-		mypilot.setLinearSpeed(8);
-		mypilot.travel(100, true);
-		mypilot.setLinearAcceleration(100);
+		pilot = me.getPilot();
+		
+		boolean rotateAction = true;
+		pilot.setLinearAcceleration(PilotRobot.ACCELERATION);
+		if(me.getCorrectBlackLines()) {
+			pilot.travel(20, true);
+			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
+		}
+		else {
+			pilot.travel(25);
+			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
+			if (me.getDistance() < 0.08 && me.correct_head_turn  == false) {
+				rotateAction = false;
+				me.correct_head_turn = true;
+			}
+			
+			me.rotateHead(PilotRobot.ROTATE_HEAD_RIGHT);
+			
+			if (me.getDistance() < PilotRobot.DISTANCE_FROM_THE_WALL && rotateAction && me.correct_head_turn == false) {
+				pilot.rotate(PilotRobot.ROTATE_ROBOT_RIGHT);
+				me.correct_head_turn = true;
+			}
+			
+			else if (me.getDistance() < 0.23 && me.getDistance() > 0.13 && me.correct_head_turn == false) {
+				pilot.rotate(PilotRobot.ROTATE_ROBOT_LEFT);
+				me.correct_head_turn = true;
+			}
+	
+			me.rotateHead(PilotRobot.ROTATE_HEAD_CENTER);
+			
+			me.rotateHead(PilotRobot.ROTATE_HEAD_LEFT);
+			if (me.getDistance() < PilotRobot.DISTANCE_FROM_THE_WALL && rotateAction && me.correct_head_turn == false) {
+				pilot.rotate(PilotRobot.ROTATE_ROBOT_LEFT);
+				me.correct_head_turn = true;
+			}
+			
+			else if (me.getDistance() < 0.23 && me.getDistance() > 0.13 && me.correct_head_turn == false) {
+				pilot.rotate(PilotRobot.ROTATE_ROBOT_RIGHT);
+				me.correct_head_turn = true;
+			}
+			me.rotateHead(PilotRobot.ROTATE_HEAD_CENTER);
+			
+			if(me.correct_head_turn) {
+				me.setCorrectBlackLines(true);
+			}
+		}
 		
 		// While we can run, yield the thread to let other threads run.
 		// It is important that no action function blocks any otherf action.
-		while (!suppressed) {
-			Thread.yield();
-		}
+//		while (suppressed) {
+//			Thread.yield();
+//		}
 		
 	    // Ensure that the motors have stopped.
-		me.getPilot().stop();
+		//me.getPilot().stop();
 	}
 }

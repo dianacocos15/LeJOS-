@@ -21,6 +21,8 @@ public class PilotMonitor extends Thread {
 	private String msg;
 	
     GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
+    
+    BumperCarSimple car = new BumperCarSimple();
 	
     // Make the monitor a daemon and set
     // the robot it monitors and the delay
@@ -46,7 +48,7 @@ public class PilotMonitor extends Thread {
     public void run(){
     	// The decimalformat here is used to round the number to three significant digits
 		DecimalFormat df = new DecimalFormat("####0.000");
-
+		int blacklinecount = 0;
     	while(true){
     		lcd.clear();
     		lcd.setFont(Font.getDefaultFont());
@@ -55,15 +57,30 @@ public class PilotMonitor extends Thread {
     		 
     		lcd.drawString("LColor: "+robot.getRightColourSensor(), 0, 20, 0);
     		lcd.drawString("RColor: "+robot.getLeftColourSensor(), 0, 30, 0);
-    		lcd.drawString("Dist: "+robot.getDistance(), 0, 40, 0);  
-    		lcd.drawString("Angle: "+robot.getAngle(), 0, 50, 0);    		
 
+    		
+    		if(robot.getCorrectBlackLines() == false) {
+    			if (robot.getLeftColourSensor() == 7) {
+    				blacklinecount ++;
+    			} 
+    		}
+    		lcd.drawString("Black Line Count "+blacklinecount, 0, 40, 0);
+    		
+    		lcd.drawString("Dist: "+robot.getDistance(), 0, 50, 0);  
+    		lcd.drawString("Angle: "+robot.getAngle(), 0, 60, 0);    		
+    		lcd.drawString("RColor: "+robot.getLeftColourSensor(), 0, 70, 0);
+    		lcd.drawString("Behaviour"+robot.getBehavior(), 0, 80, 0);
+    		
     		// Note that the following exploit additional information available from the
     		// MovePilot.  This could be extended to include speed, angular velocity, pose etc.
     		//lcd.drawString("Motion: "+robot.getPilot().isMoving(), 0, 60, 0);
     		//lcd.drawString("  type: "+robot.getPilot().getMovement().getMoveType(), 0, 70, 0);
-    		lcd.drawString(msg, 0, 100, 0);    		
-
+    		lcd.drawString(msg, 0, 100, 0);    
+    		
+    		//draw grid
+//    		String[][] grid = new String[7][6];
+//    		for (int i = 1; i < grid.length; i++)
+//    			lcd.drawString("-", lcd.getWidth()/2, 0, GraphicsLCD.HCENTER);
     		try{
     			sleep(delay);
     		}

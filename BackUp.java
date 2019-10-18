@@ -53,8 +53,11 @@ public class BackUp implements Behavior {
 	// be used for this.	
 	public void action() {
 		// Allow this method to run
+		
+		me.setBehavior("Back Up");
 		suppressed = false;
 		me.rotate(90.0);
+		me.setCorrectBlackLines(true);
 
 	    // Rotate for 45 degrees, and have the thread yield until this is
 		// complete (i.e. the robot stops) or if suppressed is true.  Note
@@ -62,7 +65,7 @@ public class BackUp implements Behavior {
 	    // There are more elegant ways of doing this!!!
 	    
 	    
-	    while(pilot.isMoving() && suppressed) {
+	    while(pilot.isMoving() && !suppressed) {
 	        Thread.yield();  // wait till turn is complete or suppressed is called
 	    }
 	    

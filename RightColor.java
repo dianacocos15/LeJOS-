@@ -22,19 +22,31 @@ public class RightColor implements Behavior {
 	}
 	
 	public boolean takeControl(){
-		
-		if(7 != me.getLeftColourSensor() && (7 == me.getRightColourSensor() || 13 == me.getRightColourSensor())) {
-			right = true;
-			return right;
+		if (me.getCorrectBlackLines()) {
+			if(7 != me.getLeftColourSensor() && 7 == me.getRightColourSensor()) {
+				right = true;
+				return right;
+			}
 		}
 		
 		right = false;
 		return false;
 	}
-
+	
 	public void action() {
-		if(right == true) {
+		//both are not black
+		//if 
+		me.setBehavior("Right Color");
+		
+		if( !(7 == me.getLeftColourSensor() && 7 == me.getRightColourSensor())) {
 			pilot.rotate(3);
+//			if(7 != me.getLeftColourSensor() && 7 != me.getRightColourSensor()) {
+				pilot.travel(0.5, true);
+			//}
+		}
+		else {
+			pilot.travel(0.05);
+			me.setCorrectBlackLines(false);
 		}
 	}
 }

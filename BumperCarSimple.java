@@ -19,16 +19,17 @@ public class BumperCarSimple {
 
 	public static void main(String[] args) {
 		PilotRobot me = new PilotRobot();		
-		PilotMonitor myMonitor = new PilotMonitor(me, 300);	
+		PilotMonitor myMonitor = new PilotMonitor(me, 200);	
 
 		// Set up the behaviours for the Arbitrator and construct it.
 		Behavior b1 = new DriveForward(me);
 		Behavior b2 = new BackUp(me);
 		Behavior b3 = new LeftColor(me);
 		Behavior b4 = new RightColor(me);
-		Behavior b5 = new BothColors(me);
+		//Behavior b5 = new BothColors(me);
+		//Behavior b6 = new Navigate(me);
 	
-		Behavior [] bArray = {b1, b2, b3, b4, b5};
+		Behavior [] bArray = {b1, b2, b3, b4};
 		Arbitrator arby = new Arbitrator(bArray);
 
 		// Note that in the Arbritrator constructor, a message is sent

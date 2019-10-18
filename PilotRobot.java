@@ -24,24 +24,37 @@ import lejos.robotics.navigation.MovePilot;
 //
 
 public class PilotRobot {
-	//private EV3TouchSensor leftBump, rightBump;	
+	//sensors
 	private EV3UltrasonicSensor usSensor;
 	private EV3GyroSensor gSensor;
-	//private EV3MediumRegulatedMotor rMotor;
+	private EV3ColorSensor leftColor, rightColor;
+	
 	private SampleProvider distSP, gyroSP, leftSP, rightSP; //leftSP, rightSP	
 	private float[] distSample, angleSample, leftColorSample, rightColorSample; //removed leftSample, rightSample
-	private MovePilot pilot;
-	//private EV3LargeRegulatedMotor motorL, motorR;
-	private EV3ColorSensor leftColor, rightColor;
-	private int currentPosition;
+	private boolean correct_at_black_line = false;
+	private String whichBehavior;
+	boolean correct_head_turn;
+	boolean rotateAction;
+	
+	static final int ACCELERATION = 5;
+	static final int DECELERATION = 100; 
+	static final int DISTANCE = 100;
+	static final int SPEED = 3;
+	static final int ANGULAR_ACCELERATION = 20;
+	static final double DISTANCE_FROM_THE_WALL = 0.07;
+	static final int ROTATE_HEAD_RIGHT = 90;
+	static final int ROTATE_HEAD_LEFT = -90;
+	static final int ROTATE_HEAD_CENTER = 0;
+	static final int ROTATE_ROBOT_RIGHT = 20;
+	static final int ROTATE_ROBOT_LEFT = -20;
+	
+	private MovePilot pilot;	
 	
 	
 	public PilotRobot() {
 		Brick myEV3 = BrickFinder.getDefault();
 		//Motor.C.rotate(90);
 		
-//		leftBump = new EV3TouchSensor(myEV3.getPort("S1"));
-//		rightBump = new EV3TouchSensor(myEV3.getPort("S4"));
 		usSensor = new EV3UltrasonicSensor(myEV3.getPort("S3"));
 		gSensor = new EV3GyroSensor(myEV3.getPort("S2"));
 		leftColor = new EV3ColorSensor(myEV3.getPort("S1"));
@@ -57,16 +70,9 @@ public class PilotRobot {
 		distSample = new float[distSP.sampleSize()];		// Size is 1
 		angleSample = new float[gyroSP.sampleSize()];	// Size is 1
 
-		// Set up the wheels by specifying the diameter of the
-		// left (and right) wheels in centimeters, i.e. 4.05 cm.
-		// The offset number is the distance between the centre
-		// of wheel to the centre of robot (4.9 cm)
-		// NOTE: this may require some trial and error to get right!!!
 		Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 4.05).offset(-4.9);
 		Wheel rightWheel = WheeledChassis.modelWheel(Motor.D, 4.05).offset(4.9);
 		
-//		rMotor = new EV3MediumRegulatedMotor(myEV3.getPort("S3"));
-//		rMotor.rotateTo(90, true);
 		
 		Chassis myChassis = new WheeledChassis( new Wheel[]{leftWheel, rightWheel}, WheeledChassis.TYPE_DIFFERENTIAL);
 
@@ -94,27 +100,11 @@ public class PilotRobot {
 	    	int right = rightColor.getColorID();
 	    	return right;
 		}
-
-//	public boolean isLeftBumpPressed() {
-//    	leftSP.fetchSample(leftSample, 0);
-//    	return (leftSample[0] == 1.0);
-//	}
-//	
-//	public boolean isRightBumpPressed() {
-//    	rightSP.fetchSample(rightSample, 0);
-//    	return (rightSample[0] == 1.0);
-//	}
 	
 	public float getDistance() {
     	distSP.fetchSample(distSample, 0);
     	return distSample[0];
 	}
-	
-//	// Get the colour from the colour sensor
-//		public float[] getRightColourSensor() {
-//	    	rightSP.fetchSample(rightColorSample, 0);
-//	    	return rightColorSample;
-//		}
 
 	public float getAngle() {
     	gyroSP.fetchSample(angleSample, 0);
@@ -126,7 +116,7 @@ public class PilotRobot {
 	}
 	
 	public void rotate(double value) {
-		pilot.setAngularAcceleration(12);
+		pilot.setAngularAcceleration(ANGULAR_ACCELERATION);
 
 		double initialAngle = getAngle(); //gyroscope
 		
@@ -139,6 +129,7 @@ public class PilotRobot {
 			pilot.rotate(value - difference);
 			
 		}
+		setCorrectBlackLines(true);
 		
 	}
 	
@@ -147,6 +138,21 @@ public class PilotRobot {
 		Motor.C.rotateTo(position);
 	}
 	
+	public void setCorrectBlackLines(boolean value) {
+		correct_at_black_line = value;
+	}
+	
+	public boolean getCorrectBlackLines() {
+		return correct_at_black_line;
+	}
+	
+	public void setBehavior(String behavior) {
+		whichBehavior = behavior;
+	}
+	
+	public String getBehavior() {
+		return whichBehavior;
+	}
 }
 
 //while left color is 7 and right color is not 7

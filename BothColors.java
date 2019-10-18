@@ -25,39 +25,62 @@ public class BothColors implements Behavior {
 	}
 	
 	public boolean takeControl(){
-		
-		if((7 == me.getLeftColourSensor() && 7 == me.getRightColourSensor()) || 
-				13 == me.getLeftColourSensor() && 13 == me.getRightColourSensor()) {
-			both = true;
-			return both;
-		}
+	
+//		if(me.getCorrectBlackLines() == true) {
+			if(7 == me.getLeftColourSensor() && 7 == me.getRightColourSensor()){
+				both = true;
+				me.correct_head_turn = false;
+				return both;
+			}
+//		}
 		
 		both = false;
 		return both;
 	}
 
 	public void action() {
+		me.setBehavior("Both Colors");
+		me.correct_head_turn = false;
+		
 		if(both == true) {
-			boolean rotateAction = true;
-			pilot.setLinearAcceleration(15);
-			pilot.travel(18);
-			pilot.setLinearAcceleration(100);
+			me.rotateAction = true;
+			pilot.setLinearAcceleration(PilotRobot.ACCELERATION);
+			pilot.travel(17);
+			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
 			
-			if (me.getDistance() < 0.08) {
-				rotateAction = false;
+			if (me.getDistance() < 0.08 && me.correct_head_turn  == false) {
+				me.rotateAction = false;
+				me.correct_head_turn = true;
 			}
 			
-			me.rotateHead(90);
-			if (me.getDistance() < 0.08 && rotateAction) {
-				pilot.rotate(20);
+			me.rotateHead(PilotRobot.ROTATE_HEAD_RIGHT);
+			if (me.getDistance() < PilotRobot.DISTANCE_FROM_THE_WALL && me.rotateAction && me.correct_head_turn == false) {
+				pilot.rotate(PilotRobot.ROTATE_ROBOT_RIGHT);
+				me.correct_head_turn = true;
 			}
-			me.rotateHead(0);
 			
-			me.rotateHead(-90);
-			if (me.getDistance() < 0.08 && rotateAction) {
-				pilot.rotate(-20);
+			else if (me.getDistance() < 0.23 && me.getDistance() > 0.13 && me.correct_head_turn == false) {
+				pilot.rotate(PilotRobot.ROTATE_ROBOT_LEFT);
+				me.correct_head_turn = true;
 			}
-			me.rotateHead(0);
+	
+			me.rotateHead(PilotRobot.ROTATE_HEAD_CENTER);
+			
+			me.rotateHead(PilotRobot.ROTATE_HEAD_LEFT);
+			if (me.getDistance() < PilotRobot.DISTANCE_FROM_THE_WALL && me.rotateAction && me.correct_head_turn == false) {
+				pilot.rotate(PilotRobot.ROTATE_ROBOT_LEFT);
+				me.correct_head_turn = true;
+			}
+			
+			else if (me.getDistance() < 0.23 && me.getDistance() > 0.13 && me.correct_head_turn == false) {
+				pilot.rotate(PilotRobot.ROTATE_ROBOT_RIGHT);
+				me.correct_head_turn = true;
+			}
+			me.rotateHead(PilotRobot.ROTATE_HEAD_CENTER);
+			
+			if(me.correct_head_turn) {
+				me.setCorrectBlackLines(true);
+			}
 			
 		}
 	}

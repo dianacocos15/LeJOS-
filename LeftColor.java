@@ -1,3 +1,5 @@
+import java.awt.Color;
+
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.robotics.navigation.MovePilot;
@@ -22,21 +24,30 @@ public class LeftColor implements Behavior {
 	}
 	
 	public boolean takeControl(){
-		
-		if((7 == me.getLeftColourSensor() || 13 == me.getLeftColourSensor()) && 7 != me.getRightColourSensor()) {
-			left = true;
-			return left;
+		if(me.getCorrectBlackLines()) {
+			if(7 == me.getLeftColourSensor() && 7 != me.getRightColourSensor()) {
+				left = true;
+				return left;
+			}
 		}
-		
 		
 		left = false;
 		return false;
 	}
 
 	public void action() {
-		if (left == true){
-			pilot.rotate(-3);
-		}
 		
+		me.setBehavior("Left Color");
+		
+		if( !(7 == me.getLeftColourSensor() && 7 == me.getRightColourSensor())) {
+			pilot.rotate(-3);
+//			if(7 != me.getLeftColourSensor() && 7 != me.getRightColourSensor()) {
+				pilot.travel(0.5, true);
+			//}
+		}
+		else {
+			pilot.travel(0.17);
+			me.setCorrectBlackLines(false);
+		}
 	}
 }
