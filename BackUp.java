@@ -37,7 +37,7 @@ public class BackUp implements Behavior {
 	
 	// When called, determine if this behaviour should start
 	public boolean takeControl(){
-		if (me.getDistance() < 0.04) {
+		if (me.getDistance() < 0.1) {
 			lcd.drawString("ROTATING", 0, 70, 0);
 			return true;
 		}

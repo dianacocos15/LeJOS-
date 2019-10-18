@@ -34,19 +34,25 @@ public class RightColor implements Behavior {
 	}
 	
 	public void action() {
-		//both are not black
-		//if 
 		me.setBehavior("Right Color");
 		
-		if( !(7 == me.getLeftColourSensor() && 7 == me.getRightColourSensor())) {
+		if( 7 == me.getLeftColourSensor()  ^ 7 == me.getRightColourSensor()) {
 			pilot.rotate(3);
-//			if(7 != me.getLeftColourSensor() && 7 != me.getRightColourSensor()) {
-				pilot.travel(0.5, true);
-			//}
+			
+			// Only move if neither is black.
+			if ( 7 != me.getLeftColourSensor()  && 7 != me.getRightColourSensor()){
+				pilot.travel(0.5);
+			}
+			
 		}
-		else {
-			pilot.travel(0.05);
+		
+		/* Travel if both black */
+		if ( 7 == me.getLeftColourSensor()  && 7 == me.getRightColourSensor()) {
+			pilot.setLinearAcceleration(PilotRobot.ACCELERATION);
+			pilot.travel(3);
+			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
 			me.setCorrectBlackLines(false);
 		}
+		
 	}
 }

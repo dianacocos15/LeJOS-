@@ -68,8 +68,9 @@ public class PilotMonitor extends Thread {
     		
     		lcd.drawString("Dist: "+robot.getDistance(), 0, 50, 0);  
     		lcd.drawString("Angle: "+robot.getAngle(), 0, 60, 0);    		
-    		lcd.drawString("RColor: "+robot.getLeftColourSensor(), 0, 70, 0);
-    		lcd.drawString("Behaviour"+robot.getBehavior(), 0, 80, 0);
+    		lcd.drawString("Correct value :  "+robot.getCorrectBlackLines(), 0, 70, 0);
+    		//lcd.drawString("Behaviour"+robot.getBehavior(), 0, 80, 0);
+    		lcd.drawString("Suppressed "+ DriveForward.suppressed , 0, 90, 0);
     		
     		// Note that the following exploit additional information available from the
     		// MovePilot.  This could be extended to include speed, angular velocity, pose etc.

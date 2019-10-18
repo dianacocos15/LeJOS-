@@ -26,13 +26,13 @@ public class BothColors implements Behavior {
 	
 	public boolean takeControl(){
 	
-//		if(me.getCorrectBlackLines() == true) {
+		if(me.getCorrectBlackLines() == true) {
 			if(7 == me.getLeftColourSensor() && 7 == me.getRightColourSensor()){
 				both = true;
 				me.correct_head_turn = false;
 				return both;
 			}
-//		}
+		}
 		
 		both = false;
 		return both;
