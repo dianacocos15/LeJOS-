@@ -18,7 +18,7 @@ import lejos.hardware.port.SensorPort;
 import lejos.robotics.navigation.MovePilot;
 
 public class DriveForward implements Behavior {
-	public boolean suppressed;
+	public static boolean suppressed;
 	private PilotRobot me;
 	private MovePilot pilot;
 
@@ -58,15 +58,23 @@ public class DriveForward implements Behavior {
 		// Go forward
 		pilot = me.getPilot();
 		
+		me.correct_head_turn = false;
+		
 		boolean rotateAction = true;
+		/**
+		 * Check if necessary to correct.
+		 * */
 		pilot.setLinearAcceleration(PilotRobot.ACCELERATION);
-		if(me.getCorrectBlackLines()) {
-			pilot.travel(20, true);
+		if(me.getCorrectBlackLines() == true) {
+			suppressed = false;
+			pilot.travel(25, true);
 			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
 		}
 		else {
+			suppressed = false;
 			pilot.travel(25);
 			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
+			
 			if (me.getDistance() < 0.08 && me.correct_head_turn  == false) {
 				rotateAction = false;
 				me.correct_head_turn = true;
@@ -105,8 +113,8 @@ public class DriveForward implements Behavior {
 		
 		// While we can run, yield the thread to let other threads run.
 		// It is important that no action function blocks any otherf action.
-//		while (suppressed) {
-//			Thread.yield();
+	//	while (!suppressed) {
+	//		Thread.yield();
 //		}
 		
 	    // Ensure that the motors have stopped.

@@ -29,7 +29,7 @@ public class BumperCarSimple {
 		//Behavior b5 = new BothColors(me);
 		//Behavior b6 = new Navigate(me);
 	
-		Behavior [] bArray = {b1, b2, b3, b4};
+		Behavior [] bArray = {b1, b2, b3, b4 };
 		Arbitrator arby = new Arbitrator(bArray);
 
 		// Note that in the Arbritrator constructor, a message is sent
