@@ -5,6 +5,7 @@ import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.Font;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.hardware.Sound;
+import lejos.robotics.subsumption.Arbitrator;
 
 // PillotMonitor.java
 // 
@@ -20,6 +21,7 @@ public class PilotMonitor extends Thread {
 	private int delay;
 	public PilotRobot robot;
 	private String msg;
+	private Arbitrator arby;
 	static int blacklinecount = 0;
 	
     GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
@@ -28,15 +30,16 @@ public class PilotMonitor extends Thread {
 	
     // Make the monitor a daemon and set
     // the robot it monitors and the delay
-    public PilotMonitor(PilotRobot r, int d){
+    public PilotMonitor(PilotRobot r, int d, Arbitrator a){
     	this.setDaemon(true);
     	delay = d;
     	robot = r;
+    	arby = a;
     	msg = "";
     	
     	for(int i = 0; i < PilotRobot.grid.length; i++) {
-			for(int j = 0; j < PilotRobot.grid.length; j++) {
-				PilotRobot.grid[i][j] = "0";
+			for(int j = 0; j < PilotRobot.grid[0].length; j++) {
+				PilotRobot.grid[i][j] = 0;
 			}
 		}
     }
@@ -60,6 +63,7 @@ public class PilotMonitor extends Thread {
     		lcd.clear();
     		lcd.setFont(Font.getDefaultFont());
     		Navigate.drawGrid();
+    		
     		//lcd.drawString("Robot Monitor", lcd.getWidth()/2, 0, GraphicsLCD.HCENTER);
     		 
 //    		lcd.drawString("LColor: "+robot.getRightColourSensor(), 0, 20, 0);
@@ -71,10 +75,23 @@ public class PilotMonitor extends Thread {
     				Sound.beep();
     				blacklinecount++;
     				Navigate.move();
-    				
+    				while(robot.getLeftColourSensor() == 7 || robot.getRightColourSensor() == 7) {
+    					try{
+    		    			sleep(10);
+    		    		}
+    		    		catch(Exception e){
+    		    			// We have no exception handling
+    		    			;
+    		    		}
+    				}
     			} 
     		}
-//    		lcd.drawString("Black Line Count "+blacklinecount, 0, 20, 0);
+    		
+    		if (PilotRobot.runMove == true) {
+    			Navigate.move();
+    			PilotRobot.runMove = false;
+    		}
+    		//lcd.drawString("Black Line Count "+blacklinecount, 0, 20, 0);
 //    		
 //    		lcd.drawString("Dist: "+robot.getDistance(), 0, 50, 0);  
 //    		lcd.drawString("Angle: "+robot.getAngle(), 0, 60, 0);    		
@@ -101,6 +118,10 @@ public class PilotMonitor extends Thread {
     		
     		if(Button.ESCAPE.isDown()) {
     			System.exit(0);
+    		}
+    		
+    		if(Button.LEFT.isDown()) {
+    			arby.stop();
     		}
 	    }
     	

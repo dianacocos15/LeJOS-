@@ -1,5 +1,8 @@
 import lejos.hardware.Brick;
 import lejos.hardware.BrickFinder;
+import lejos.hardware.Button;
+import lejos.hardware.ev3.LocalEV3;
+import lejos.hardware.lcd.GraphicsLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
 import lejos.hardware.motor.Motor;
@@ -38,7 +41,7 @@ public class PilotRobot {
 	
 	static int correctionIncrementCount = 0;
 	static char[] direction = {'N', 'E', 'S', 'W'};
-	static String[][] grid = new String[8][9];
+	static int[][] grid = new int[8][9];
 	
 	
 	static final int ACCELERATION = 20;
@@ -47,12 +50,16 @@ public class PilotRobot {
 	static final int TOP_SPEED = 30;
 	static final int ANGULAR_ACCELERATION = 40;
 	static final double DISTANCE_FROM_THE_WALL = 0.07;
-	static final int ROTATE_HEAD_RIGHT = 90;
-	static final int ROTATE_HEAD_LEFT = -90;
+	static final int ROTATE_HEAD_LEFT = 90;
+	static final int ROTATE_HEAD_RIGHT = -90;
 	static final int ROTATE_HEAD_CENTER = 0;
 	static final int ROTATE_ROBOT_RIGHT = 30;
 	static final int ROTATE_ROBOT_LEFT = -30;
-	
+	static final int SAMPLE_SIZE = 300;
+	static float average;
+	static boolean runMove = false;
+	static GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
+
 
 	
 	private MovePilot pilot;	
@@ -60,6 +67,7 @@ public class PilotRobot {
 
 	public PilotRobot() {
 		Brick myEV3 = BrickFinder.getDefault();
+		Navigate navigate = new Navigate(1,1);
 		//Motor.C.rotate(90);
 		
 		usSensor = new EV3UltrasonicSensor(myEV3.getPort("S3"));
@@ -123,16 +131,16 @@ public class PilotRobot {
 		return pilot;
 	}
 	
-	public void rotate(double value) {
+	public void rotate(int value) {
 		
 
-		double initialAngle = getAngle(); //gyroscope
+		int initialAngle = (int)getAngle(); //gyroscope
 		
-		double finalAngle = getAngle();
-		double difference = finalAngle - initialAngle;
+		int finalAngle = (int)getAngle();
+		int difference = (int)(finalAngle - initialAngle);
 		
 		while (value != difference) {
-			finalAngle = getAngle();
+			finalAngle = (int)getAngle();
 			difference = finalAngle - initialAngle;
 			pilot.rotate(value - difference);
 			
@@ -164,6 +172,28 @@ public class PilotRobot {
 		return whichBehavior;
 	}
 	
+	public float distanceSample() {
+		float currentDistance = getDistance();
+		average = 0;
+		float[] distances = new float[SAMPLE_SIZE];
+		int m = 0;
+		float sum = 0;
+		while (m < distances.length) {
+			if(currentDistance > 0 && currentDistance != Float.POSITIVE_INFINITY) {
+				distances[m] = getDistance();
+				m++;
+			}
+		}
+		
+		for (float d : distances) {
+			sum += d;
+		}
+		
+		average = sum/distances.length;
+		
+
+		return average;
+	}	
 }
 
 //while left color is 7 and right color is not 7

@@ -9,8 +9,12 @@ public class Navigate {
 	//4 = N
 	
 	private static String r = ".";
-	private static int i = 1;
-	private static int j = 1;
+	static int i = 1;
+	static int j = 1;
+	
+	static boolean front  = DriveForward.obstacle_front;
+	static boolean right  = DriveForward.obstacle_right;
+	static boolean left = DriveForward.obstacle_left;
 	
 	public PilotRobot robot;
 	static GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
@@ -22,12 +26,12 @@ public class Navigate {
 	
 	public static void drawGrid() {
 		for(int k = 0; k < PilotRobot.grid.length; k++) {
-			for(int l = 0; l < PilotRobot.grid.length; l++) {
+			for(int l = 0; l < PilotRobot.grid[0].length; l++) {
 				if(k == i && j == l) {
 					lcd.drawString(r, k*15 + 40, l*15, GraphicsLCD.HCENTER);
 				}
 				else {
-					lcd.drawString(PilotRobot.grid[k][l], k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+					lcd.drawString(String.valueOf(PilotRobot.grid[k][l]), k*15 + 40, l*15, GraphicsLCD.HCENTER);	
 				}
 			}
 		}
@@ -48,4 +52,62 @@ public class Navigate {
 			}
 		}
 	
+	public static void markObstacles() {
+		/*
+		 *	if there's an obstacle in front
+		 *		if our orientation is E/S/W/N, increment given cells
+		 *			EAST: (i+1, j)
+		 *			SOUTH: (i, j-1)
+		 *			WEST: (i-1, j)
+		 *			NORTH: (i, j-1)  
+		 */
+		if(front == true) {
+			switch(Navigate.orientation) {
+			case 1: PilotRobot.grid[i+1][j]++;
+				break;
+			case 2: PilotRobot.grid[i][j+1]++;
+				break;
+			case 3: PilotRobot.grid[i-1][j]++;
+				break;
+			case 4: PilotRobot.grid[i][j-1]++;
+				break;
+			}
+		}
+		
+		else if(left == true) {
+			switch(Navigate.orientation) {
+			case 1: PilotRobot.grid[i][j-1]++;
+				break;
+			case 2: PilotRobot.grid[i+1][j]++;
+				break;
+			case 3: PilotRobot.grid[i][j+1]++;
+				break;
+			case 4: PilotRobot.grid[i-1][j]++;
+				break;
+			}
+		}
+		
+		else if(right == true){
+			switch(Navigate.orientation) {
+			case 1: PilotRobot.grid[i][j+1]++;
+				break;
+			case 2: PilotRobot.grid[i-1][j]++;
+				break;
+			case 3: PilotRobot.grid[i][j-1]++;
+				break;
+			case 4: PilotRobot.grid[i+1][j]++;
+				break;
+			}
+		}
+		
+		front = false;
+		left = false;
+		right = false;
 	}
+	
+	public static String currentPosition() {
+		String position = "(" + i + ", " + j + ")";
+		
+		return position;
+	}
+}

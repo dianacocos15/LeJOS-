@@ -43,27 +43,15 @@ public class BackUp implements Behavior {
 		}
 		return false;
 	}
-
-	// This is our action function.  All calls to the motors should be
-	// non blocking, so that they can be stopped if suppress is true.
-	// If a call is made to move a specific distance or rotate a specific
-	// angle etc, then it should return immediately, and monitored until
-	// it has completed.  The code below illustrates this, but waiting
-	// until the robot stops moving.  An OdometryPoseProvider could also
-	// be used for this.	
+	
 	public void action() {
 		// Allow this method to run
 		
 		me.setBehavior("Back Up");
 		suppressed = false;
-		me.rotate(90.0);
+		me.rotate(90);
 		Navigate.orientation++;
-		//me.setCorrectBlackLines(true);
-
-	    // Rotate for 45 degrees, and have the thread yield until this is
-		// complete (i.e. the robot stops) or if suppressed is true.  Note
-	    // that we can check suppressed to see if it is even worth doing.
-	    // There are more elegant ways of doing this!!!
+		me.setCorrectBlackLines(true);
 	    
 	    
 	    while(pilot.isMoving() && !suppressed) {

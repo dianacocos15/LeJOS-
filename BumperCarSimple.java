@@ -18,9 +18,17 @@ import lejos.robotics.subsumption.Behavior;
 public class BumperCarSimple {
 
 	public static void main(String[] args) {
-		PilotRobot me = new PilotRobot();		
-		PilotMonitor myMonitor = new PilotMonitor(me, 30);	
-
+		PilotRobot me = new PilotRobot();			
+		
+		 try{
+				Thread.sleep(1000);
+			}
+			catch(Exception e){
+				// We have no exception handling
+				;
+			}
+		
+		
 		// Set up the behaviours for the Arbitrator and construct it.
 		Behavior b1 = new DriveForward(me);
 		Behavior b2 = new BackUp(me);
@@ -31,7 +39,10 @@ public class BumperCarSimple {
 	
 		Behavior [] bArray = {b1, b4, b3, b2};
 		Arbitrator arby = new Arbitrator(bArray);
-
+		PilotMonitor myMonitor = new PilotMonitor(me, 30, arby);
+		EV3Server ev3server = new EV3Server();
+		
+		
 		// Note that in the Arbritrator constructor, a message is sent
 		// to stdout.  The following prints eight black lines to clear
 		// the message from the screen
@@ -40,10 +51,16 @@ public class BumperCarSimple {
 
         // Start the Pilot Monitor
 		myMonitor.start();
+		ev3server.start();
 
 		// Tell the user to start
 		myMonitor.setMessage("Press a key to start");				
         Button.waitForAnyPress();
+        
+        //Prevent eroneous situation where sensor detects objects on initialisation
+       
+        
+        
         
         // Start the Arbitrator
 		arby.go();
