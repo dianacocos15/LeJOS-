@@ -1,5 +1,6 @@
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.GraphicsLCD;
+import lejos.robotics.navigation.MovePilot;
 
 public class Navigate {
 	static int orientation = 1;
@@ -31,7 +32,7 @@ public class Navigate {
 					lcd.drawString(r, k*15 + 40, l*15, GraphicsLCD.HCENTER);
 				}
 				else {
-					lcd.drawString(String.valueOf(PilotRobot.grid[k][l]), k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+					lcd.drawString(PilotRobot.grid[k][l].getValue(), k*15 + 40, l*15, GraphicsLCD.HCENTER);	
 				}
 			}
 		}
@@ -57,48 +58,67 @@ public class Navigate {
 		 *	if there's an obstacle in front
 		 *		if our orientation is E/S/W/N, increment given cells
 		 *			EAST: (i+1, j)
-		 *			SOUTH: (i, j-1)
+		 *			SOUTH: (i, j+1)
 		 *			WEST: (i-1, j)
 		 *			NORTH: (i, j-1)  
 		 */
+		boolean obstacleNorth = false; //
+		boolean obstacleEast = false; // 
+		boolean obstacleSouth = false; // 
+		boolean obstacleWest = false; // 		
+		
 		if(front == true) {
 			switch(Navigate.orientation) {
-			case 1: PilotRobot.grid[i+1][j]++;
+			case 1: obstacleEast = true;
 				break;
-			case 2: PilotRobot.grid[i][j+1]++;
+			case 2: obstacleSouth = true;
 				break;
-			case 3: PilotRobot.grid[i-1][j]++;
+			case 3: obstacleWest = true;
 				break;
-			case 4: PilotRobot.grid[i][j-1]++;
+			case 4: obstacleNorth = true;
 				break;
 			}
 		}
 		
 		else if(left == true) {
 			switch(Navigate.orientation) {
-			case 1: PilotRobot.grid[i][j-1]++;
+			case 1: obstacleNorth = true;
 				break;
-			case 2: PilotRobot.grid[i+1][j]++;
+			case 2: obstacleEast = true;
 				break;
-			case 3: PilotRobot.grid[i][j+1]++;
+			case 3: obstacleSouth = true;
 				break;
-			case 4: PilotRobot.grid[i-1][j]++;
+			case 4: obstacleWest = true;
 				break;
 			}
 		}
 		
 		else if(right == true){
 			switch(Navigate.orientation) {
-			case 1: PilotRobot.grid[i][j+1]++;
+			case 1:  obstacleSouth = true;
 				break;
-			case 2: PilotRobot.grid[i-1][j]++;
+			case 2:  obstacleWest = true;
 				break;
-			case 3: PilotRobot.grid[i][j-1]++;
+			case 3: obstacleNorth = true;
 				break;
-			case 4: PilotRobot.grid[i+1][j]++;
+			case 4:  obstacleEast = true;
 				break;
 			}
 		}
+		
+		if (obstacleNorth){
+			PilotRobot.grid[i][j-1].incrementCell();
+		}
+		if (obstacleEast){
+			PilotRobot.grid[i+1][j].incrementCell();
+		}
+		if (obstacleSouth){
+			PilotRobot.grid[i][j+1].incrementCell();
+		}
+		if (obstacleWest){
+			PilotRobot.grid[i-1][j].incrementCell();
+		}
+		
 		
 		front = false;
 		left = false;
@@ -109,5 +129,13 @@ public class Navigate {
 		String position = "(" + i + ", " + j + ")";
 		
 		return position;
+	}
+	
+	public static String getX() {
+		return "" + i;
+	}
+	
+	public static String getY() {
+		return "" + j;
 	}
 }

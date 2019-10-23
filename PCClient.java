@@ -36,16 +36,26 @@ public class PCClient {
 					System.out.println("\n");
 					System.out.println("\n");
 
+					
+					
+					String position = dIn.readUTF();
+					
+					String yCoord = dIn.readUTF();
+					String xCoord = dIn.readUTF();
+					
+					
 					for (int x = 0; x < 9; x++) {
 						System.out.print("\n");
 						for(int y = 0; y < 8; y++) {
-							System.out.print(str[y][x]);
+							if(x == Integer.parseInt(xCoord) && y == Integer.parseInt(yCoord)) {
+								System.out.print(".");
+							}
+							else {
+								System.out.print(str[y][x]);
+							}
+							System.out.print(" ");
 						}
 					}
-					
-					String position;
-					
-					position = dIn.readUTF();
 					
 					System.out.println(position);
 					

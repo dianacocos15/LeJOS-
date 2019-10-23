@@ -39,7 +39,7 @@ public class BumperCarSimple {
 	
 		Behavior [] bArray = {b1, b4, b3, b2};
 		Arbitrator arby = new Arbitrator(bArray);
-		PilotMonitor myMonitor = new PilotMonitor(me, 30, arby);
+		PilotMonitor myMonitor = new PilotMonitor(me, 50, arby);
 		EV3Server ev3server = new EV3Server();
 		
 		

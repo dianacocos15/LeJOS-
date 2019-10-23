@@ -17,6 +17,7 @@ import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.robotics.navigation.MovePilot;
 
@@ -25,8 +26,11 @@ public class DriveForward implements Behavior {
 	private PilotRobot me;
 	private MovePilot pilot;
 	private boolean dontDrive = false;
+	private boolean failure_to_correct;// Prevention variable - if unable to detect black lines and travels past them use gyroscope.
 //	private static int i = Navigate.i;
 //	private static int j = Navigate.j;
+	
+	private float distanceTravelledSinceReset;
 	
 	static boolean obstacle_front;
 	static boolean obstacle_right;
@@ -72,25 +76,36 @@ public class DriveForward implements Behavior {
 		 * Check if necessary to correct.
 		 * */
 		pilot.setLinearAcceleration(PilotRobot.ACCELERATION);
-		if(me.getBehavior() == "Left Color" || me.getBehavior() == "Right Color") {
+		if(failure_to_correct && !(me.getBehavior() == "Left Color" || me.getBehavior() == "Right Color")) {
+			failure_to_correct = false;
+			Navigate.move();
+			Navigate.drawGrid();
+		}
+		else if(me.getBehavior() == "Left Color" || me.getBehavior() == "Right Color") {
 			Sound.beep();
 			pilot.travel(13);
 			dontDrive = true;
 			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
 			checkObstacles();
+			failure_to_correct = false;
 		}
 		else if(me.getCorrectBlackLines() == true && dontDrive == false) {
 			suppressed = false;
-			pilot.setLinearAcceleration(5);
+			pilot.setLinearAcceleration(2);
 			pilot.travel(24.5, true);
 			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
+			failure_to_correct = true;
 		}
 		else if (dontDrive == false){
 			suppressed = false;
+			int prevalue = PilotMonitor.blacklinecount;
 			pilot.travel(24.5);
+			int postvalue = PilotMonitor.blacklinecount;
+			updatePositionIfMissedBlackLine(prevalue, postvalue);
+			
 			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
 			checkObstacles();
-			
+			failure_to_correct = false;
 		}
 		
 		dontDrive = false;
@@ -105,6 +120,7 @@ public class DriveForward implements Behavior {
 	
 	
 	public void checkObstacles() {
+		pilot.setAngularAcceleration(100);
 		me.correct_head_turn = false;
 		boolean rotateAction = true;
 		int wallCorrectionDirection = 0; //no correction
@@ -120,6 +136,7 @@ public class DriveForward implements Behavior {
 		}
 		
 		me.rotateHead(PilotRobot.ROTATE_HEAD_LEFT);
+		pilot.rotate(-10);
 		if(me.distanceSample() < 0.15) {
 			Navigate.left = true;
 			Navigate.markObstacles();
@@ -138,6 +155,7 @@ public class DriveForward implements Behavior {
 		//me.rotateHead(PilotRobot.ROTATE_HEAD_CENTER);
 		
 		me.rotateHead(PilotRobot.ROTATE_HEAD_RIGHT);
+		pilot.rotate(20);
 		if(me.distanceSample() < 0.15) {
 			Navigate.right = true;
 			Navigate.markObstacles();
@@ -153,6 +171,7 @@ public class DriveForward implements Behavior {
 			me.correct_head_turn = true;
 		}
 		me.rotateHead(PilotRobot.ROTATE_HEAD_CENTER);
+		pilot.rotate(-10);
 		
 		if(me.correct_head_turn) {
 			me.setCorrectBlackLines(true);
@@ -160,6 +179,17 @@ public class DriveForward implements Behavior {
 		
 		pilot.rotate(wallCorrectionDirection);
 		wallCorrectionDirection = 0;	
+		pilot.setAngularAcceleration(PilotRobot.ACCELERATION);
+	}
+	
+	public static void updatePositionIfMissedBlackLine(int pre, int post) {
+		float distanceTravelled = PilotRobot.getTravelDistance();
+		
+		if(distanceTravelled > 20 && (pre == post)) {
+			Sound.twoBeeps();
+			Navigate.move();
+			Navigate.drawGrid();
+		}
 	}
 	
 //	public static void displayObstacles() {

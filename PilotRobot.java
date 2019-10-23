@@ -38,10 +38,10 @@ public class PilotRobot {
 	private String whichBehavior;
 	boolean correct_head_turn;
 	boolean rotateAction;
-	
+
 	static int correctionIncrementCount = 0;
 	static char[] direction = {'N', 'E', 'S', 'W'};
-	static int[][] grid = new int[8][9];
+	static Cell[][] grid = new Cell[8][9];
 	
 	
 	static final int ACCELERATION = 20;
@@ -96,6 +96,14 @@ public class PilotRobot {
 	    pilot.setLinearSpeed(TOP_SPEED);
 		// Reset the value of the gyroscope to zero
 		gSensor.reset();
+		
+		//Work ya bastud
+		for(int i =0; i< grid.length; i ++ ) {
+			for(int j=0;j<grid[0].length;j++) {
+				grid[i][j] = new Cell();
+			}
+		}
+		
 	}
 	
 	public void closeRobot() {
@@ -170,6 +178,22 @@ public class PilotRobot {
 	
 	public String getBehavior() {
 		return whichBehavior;
+	}
+	
+	public static float getTravelDistance() {
+		float numberOfRevolutionsB = Motor.B.getTachoCount();
+		float numberOfRevolutionsD = Motor.D.getTachoCount();
+		
+		float avgRevolutions = (numberOfRevolutionsB + numberOfRevolutionsD)/2;
+		
+		float distance = (float)(Math.PI * 4.05 * avgRevolutions);
+		
+		return distance;
+	}
+	
+	public void resetTachoCount() {
+		Motor.B.resetTachoCount();
+		Motor.D.resetTachoCount();	
 	}
 	
 	public float distanceSample() {

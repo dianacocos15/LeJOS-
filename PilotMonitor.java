@@ -39,7 +39,10 @@ public class PilotMonitor extends Thread {
     	
     	for(int i = 0; i < PilotRobot.grid.length; i++) {
 			for(int j = 0; j < PilotRobot.grid[0].length; j++) {
-				PilotRobot.grid[i][j] = 0;
+				if(i == 0 || i == PilotRobot.grid.length-1 || j == 0 || j == PilotRobot.grid[0].length-1) {
+					PilotRobot.grid[i][j].setValue("X");
+				}
+				else PilotRobot.grid[i][j].setValue("0");
 			}
 		}
     }

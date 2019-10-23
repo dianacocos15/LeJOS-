@@ -33,6 +33,8 @@ public static final int port = 1234;
 			
 			try {
 				dOut.writeUTF(Navigate.currentPosition());
+				dOut.writeUTF(Navigate.getX());
+				dOut.writeUTF(Navigate.getY());
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
