@@ -49,7 +49,7 @@ public class BackUp implements Behavior {
 		
 		me.setBehavior("Back Up");
 		suppressed = false;
-		me.rotate(90);
+		//me.rotate(90);
 		Navigate.orientation++;
 		me.setCorrectBlackLines(true);
 	    

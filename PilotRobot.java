@@ -67,7 +67,7 @@ public class PilotRobot {
 
 	public PilotRobot() {
 		Brick myEV3 = BrickFinder.getDefault();
-		Navigate navigate = new Navigate(1,1);
+		Navigate navigate = new Navigate(3,3, this);
 		//Motor.C.rotate(90);
 		
 		usSensor = new EV3UltrasonicSensor(myEV3.getPort("S3"));

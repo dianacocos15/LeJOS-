@@ -17,12 +17,14 @@ public class Navigate {
 	static boolean right  = DriveForward.obstacle_right;
 	static boolean left = DriveForward.obstacle_left;
 	
-	public PilotRobot robot;
+	public static PilotRobot robot;
+	
 	static GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
 	
-	public Navigate(int firstCoordinate, int secondCoordinate) {
+	public Navigate(int firstCoordinate, int secondCoordinate, PilotRobot pilot) {
 		i = firstCoordinate;
 		j = secondCoordinate;
+		robot = pilot;
 	}
 	
 	public static void drawGrid() {
@@ -51,6 +53,9 @@ public class Navigate {
 				break;
 			
 			}
+			
+			Travel travel = new Travel(3,3,robot);
+			travel.travelCorrectDirection();
 		}
 	
 	public static void markObstacles() {

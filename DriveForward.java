@@ -30,8 +30,6 @@ public class DriveForward implements Behavior {
 //	private static int i = Navigate.i;
 //	private static int j = Navigate.j;
 	
-	private float distanceTravelledSinceReset;
-	
 	static boolean obstacle_front;
 	static boolean obstacle_right;
 	static boolean obstacle_left;
