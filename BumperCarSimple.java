@@ -12,8 +12,10 @@
 //when color sensors are both black drive forward for 3cm
 
 import lejos.hardware.Button;
+import lejos.hardware.lcd.LCD;
 import lejos.robotics.subsumption.Arbitrator;
 import lejos.robotics.subsumption.Behavior;
+import java.util.List;
 
 public class BumperCarSimple {
 
@@ -34,10 +36,19 @@ public class BumperCarSimple {
 		Behavior b2 = new BackUp(me);
 		Behavior b3 = new LeftColor(me);
 		Behavior b4 = new RightColor(me);
+
 		//Behavior b5 = new BothColors(me);
 		//Behavior b6 = new Navigate(me);
-	
-		Behavior [] bArray = {b1, b4, b3, b2};
+		AStar astar = new AStar(PilotRobot.grid, Navigate.i, Navigate.j);
+		List<AStar.Node> n = astar.runAlgorithm(Navigate.i, Navigate.j, PilotRobot.finalGoalx, PilotRobot.finalGoaly);
+		PilotRobot.list = n;
+		
+		//LCD.drawString("" + n.size(), 20, 20);
+		//LCD.drawString("" + PilotRobot.listIndex, 20, 20);
+		
+		Behavior b5 = new nextCoordinate(me, n);
+		
+		Behavior [] bArray = {b1, b4, b3, b2 ,b5};
 		Arbitrator arby = new Arbitrator(bArray);
 		PilotMonitor myMonitor = new PilotMonitor(me, 50, arby);
 		EV3Server ev3server = new EV3Server();

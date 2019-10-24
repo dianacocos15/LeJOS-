@@ -1,3 +1,4 @@
+import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.robotics.navigation.MovePilot;
@@ -41,6 +42,7 @@ public class Navigate {
 	}
 	
 	public static void move() {
+			Sound.beep();
 			switch(orientation) {
 			default: orientation = 1;
 			case 1: i++;
@@ -54,8 +56,7 @@ public class Navigate {
 			
 			}
 			
-			Travel travel = new Travel(3,3,robot);
-			travel.travelCorrectDirection();
+			PilotRobot.nextCoordinate = true;
 		}
 	
 	public static void markObstacles() {
@@ -112,16 +113,16 @@ public class Navigate {
 		}
 		
 		if (obstacleNorth){
-			PilotRobot.grid[i][j-1].incrementCell();
+			PilotRobot.grid[i][j-1].setValue("100");
 		}
 		if (obstacleEast){
-			PilotRobot.grid[i+1][j].incrementCell();
+			PilotRobot.grid[i+1][j].setValue("100");
 		}
 		if (obstacleSouth){
-			PilotRobot.grid[i][j+1].incrementCell();
+			PilotRobot.grid[i][j+1].setValue("100");
 		}
 		if (obstacleWest){
-			PilotRobot.grid[i-1][j].incrementCell();
+			PilotRobot.grid[i-1][j].setValue("100");
 		}
 		
 		

@@ -1,3 +1,5 @@
+import java.util.List;
+
 import lejos.hardware.Brick;
 import lejos.hardware.BrickFinder;
 import lejos.hardware.Button;
@@ -43,6 +45,11 @@ public class PilotRobot {
 	static char[] direction = {'N', 'E', 'S', 'W'};
 	static Cell[][] grid = new Cell[8][9];
 	
+	public static List<AStar.Node> list;
+	public static int listIndex = 0;
+	
+	public static int finalGoalx = 6;
+	public static int finalGoaly = 1;
 	
 	static final int ACCELERATION = 20;
 	static final int DECELERATION = 100; 
@@ -56,6 +63,7 @@ public class PilotRobot {
 	static final int ROTATE_ROBOT_RIGHT = 30;
 	static final int ROTATE_ROBOT_LEFT = -30;
 	static final int SAMPLE_SIZE = 300;
+	static boolean nextCoordinate = true;
 	static float average;
 	static boolean runMove = false;
 	static GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
@@ -67,7 +75,7 @@ public class PilotRobot {
 
 	public PilotRobot() {
 		Brick myEV3 = BrickFinder.getDefault();
-		Navigate navigate = new Navigate(3,3, this);
+		Navigate navigate = new Navigate(1,1, this);
 		//Motor.C.rotate(90);
 		
 		usSensor = new EV3UltrasonicSensor(myEV3.getPort("S3"));

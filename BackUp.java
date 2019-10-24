@@ -12,6 +12,9 @@
 
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.subsumption.Behavior;
+
+import java.util.List;
+
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.GraphicsLCD;
 
@@ -49,8 +52,16 @@ public class BackUp implements Behavior {
 		
 		me.setBehavior("Back Up");
 		suppressed = false;
+		AStar astar = new AStar(PilotRobot.grid, Navigate.i, Navigate.j);
+		List<AStar.Node> n = astar.runAlgorithm(Navigate.i, Navigate.j, PilotRobot.finalGoalx,PilotRobot.finalGoaly);
+		PilotRobot.list = n;
+		PilotRobot.listIndex = 0;
+		
+		//Recalculate and add back list
+		
+		
 		//me.rotate(90);
-		Navigate.orientation++;
+		//Navigate.orientation++;
 		me.setCorrectBlackLines(true);
 	    
 	    

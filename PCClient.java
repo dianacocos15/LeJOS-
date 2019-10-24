@@ -4,7 +4,7 @@ import java.net.*;
 
 public class PCClient {
 	public static void main(String[] args) throws IOException {
-		String ip = "192.168.70.62"; 
+		String ip = "192.168.70.205"; 
 		
 		if(args.length > 0)
 			ip = args[0];
@@ -51,7 +51,7 @@ public class PCClient {
 								System.out.print(".");
 							}
 							else {
-								System.out.print(str[y][x]);
+								System.out.print("\nCurrent Pos : " + str[y][x]);
 							}
 							System.out.print(" ");
 						}
