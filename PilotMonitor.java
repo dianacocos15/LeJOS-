@@ -73,7 +73,7 @@ public class PilotMonitor extends Thread {
 //    		lcd.drawString("RColor: "+robot.getLeftColourSensor(), 0, 30, 0);
 
     		
-    		if(robot.getCorrectBlackLines() == false) {
+    		if(robot.getCorrectBlackLines() == false && !PilotRobot.runMove) {
     			if (robot.getLeftColourSensor() == 7 || robot.getRightColourSensor() == 7) {
     				Sound.beep();
     				blacklinecount++;

@@ -48,8 +48,8 @@ public class PilotRobot {
 	public static List<AStar.Node> list;
 	public static int listIndex = 0;
 	
-	public static int finalGoalx = 6;
-	public static int finalGoaly = 1;
+	public static int finalGoalx = 1;
+	public static int finalGoaly = 6;
 	
 	static final int ACCELERATION = 20;
 	static final int DECELERATION = 100; 
@@ -114,6 +114,16 @@ public class PilotRobot {
 		
 	}
 	
+	public static Cell[][] getGridCopy() throws CloneNotSupportedException{
+		Cell[][] newGrid = new Cell[8][9];
+		for(int col = 0; col < 8; col++) {
+			for(int row = 0; row < 9; row++) {
+				newGrid[col][row] = PilotRobot.grid[col][row].clone();
+			}
+		}
+		return newGrid;
+	}
+	
 	public void closeRobot() {
 		leftColor.close();
 		rightColor.close();
@@ -161,6 +171,7 @@ public class PilotRobot {
 			pilot.rotate(value - difference);
 			
 		}
+		
 		setCorrectBlackLines(false);
 		
 	}
