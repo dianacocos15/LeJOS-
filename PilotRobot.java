@@ -1,5 +1,10 @@
+import java.util.List;
+
 import lejos.hardware.Brick;
 import lejos.hardware.BrickFinder;
+import lejos.hardware.Button;
+import lejos.hardware.ev3.LocalEV3;
+import lejos.hardware.lcd.GraphicsLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
 import lejos.hardware.motor.Motor;
@@ -35,24 +40,42 @@ public class PilotRobot {
 	private String whichBehavior;
 	boolean correct_head_turn;
 	boolean rotateAction;
+
+	static int correctionIncrementCount = 0;
+	static char[] direction = {'N', 'E', 'S', 'W'};
+	static Cell[][] grid = new Cell[8][9];
 	
-	static final int ACCELERATION = 5;
+	public static List<AStar.Node> list;
+	public static int listIndex = 0;
+	
+	public static int finalGoalx = 6;
+	public static int finalGoaly = 1;
+	
+	static final int ACCELERATION = 20;
 	static final int DECELERATION = 100; 
 	static final int DISTANCE = 100;
-	static final int SPEED = 3;
-	static final int ANGULAR_ACCELERATION = 20;
+	static final int TOP_SPEED = 30;
+	static final int ANGULAR_ACCELERATION = 40;
 	static final double DISTANCE_FROM_THE_WALL = 0.07;
-	static final int ROTATE_HEAD_RIGHT = 90;
-	static final int ROTATE_HEAD_LEFT = -90;
+	static final int ROTATE_HEAD_LEFT = 90;
+	static final int ROTATE_HEAD_RIGHT = -90;
 	static final int ROTATE_HEAD_CENTER = 0;
-	static final int ROTATE_ROBOT_RIGHT = 20;
-	static final int ROTATE_ROBOT_LEFT = -20;
+	static final int ROTATE_ROBOT_RIGHT = 30;
+	static final int ROTATE_ROBOT_LEFT = -30;
+	static final int SAMPLE_SIZE = 300;
+	static boolean nextCoordinate = true;
+	static float average;
+	static boolean runMove = false;
+	static GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
+
+
 	
 	private MovePilot pilot;	
-	
-	
+
+
 	public PilotRobot() {
 		Brick myEV3 = BrickFinder.getDefault();
+		Navigate navigate = new Navigate(1,1, this);
 		//Motor.C.rotate(90);
 		
 		usSensor = new EV3UltrasonicSensor(myEV3.getPort("S3"));
@@ -77,9 +100,18 @@ public class PilotRobot {
 		Chassis myChassis = new WheeledChassis( new Wheel[]{leftWheel, rightWheel}, WheeledChassis.TYPE_DIFFERENTIAL);
 
 	    pilot = new MovePilot(myChassis);
-	    
+	    pilot.setAngularAcceleration(ANGULAR_ACCELERATION);
+	    pilot.setLinearSpeed(TOP_SPEED);
 		// Reset the value of the gyroscope to zero
 		gSensor.reset();
+		
+		//Work ya bastud
+		for(int i =0; i< grid.length; i ++ ) {
+			for(int j=0;j<grid[0].length;j++) {
+				grid[i][j] = new Cell();
+			}
+		}
+		
 	}
 	
 	public void closeRobot() {
@@ -115,21 +147,21 @@ public class PilotRobot {
 		return pilot;
 	}
 	
-	public void rotate(double value) {
-		pilot.setAngularAcceleration(ANGULAR_ACCELERATION);
-
-		double initialAngle = getAngle(); //gyroscope
+	public void rotate(int value) {
 		
-		double finalAngle = getAngle();
-		double difference = finalAngle - initialAngle;
+
+		int initialAngle = (int)getAngle(); //gyroscope
+		
+		int finalAngle = (int)getAngle();
+		int difference = (int)(finalAngle - initialAngle);
 		
 		while (value != difference) {
-			finalAngle = getAngle();
+			finalAngle = (int)getAngle();
 			difference = finalAngle - initialAngle;
 			pilot.rotate(value - difference);
 			
 		}
-		setCorrectBlackLines(true);
+		setCorrectBlackLines(false);
 		
 	}
 	
@@ -139,7 +171,9 @@ public class PilotRobot {
 	}
 	
 	public void setCorrectBlackLines(boolean value) {
+		pilot.setAngularAcceleration(100);
 		correct_at_black_line = value;
+		pilot.setAngularAcceleration(ANGULAR_ACCELERATION);
 	}
 	
 	public boolean getCorrectBlackLines() {
@@ -153,6 +187,45 @@ public class PilotRobot {
 	public String getBehavior() {
 		return whichBehavior;
 	}
+	
+	public static float getTravelDistance() {
+		float numberOfRevolutionsB = Motor.B.getTachoCount();
+		float numberOfRevolutionsD = Motor.D.getTachoCount();
+		
+		float avgRevolutions = (numberOfRevolutionsB + numberOfRevolutionsD)/2;
+		
+		float distance = (float)(Math.PI * 4.05 * avgRevolutions);
+		
+		return distance;
+	}
+	
+	public void resetTachoCount() {
+		Motor.B.resetTachoCount();
+		Motor.D.resetTachoCount();	
+	}
+	
+	public float distanceSample() {
+		float currentDistance = getDistance();
+		average = 0;
+		float[] distances = new float[SAMPLE_SIZE];
+		int m = 0;
+		float sum = 0;
+		while (m < distances.length) {
+			if(currentDistance > 0 && currentDistance != Float.POSITIVE_INFINITY) {
+				distances[m] = getDistance();
+				m++;
+			}
+		}
+		
+		for (float d : distances) {
+			sum += d;
+		}
+		
+		average = sum/distances.length;
+		
+
+		return average;
+	}	
 }
 
 //while left color is 7 and right color is not 7
