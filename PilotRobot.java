@@ -172,8 +172,7 @@ public class PilotRobot {
 			
 		}
 		
-		setCorrectBlackLines(false);
-		
+		setCorrectBlackLines(true);
 	}
 	
 	//Rotate head of the ultrasound sensor
@@ -183,7 +182,11 @@ public class PilotRobot {
 	
 	public void setCorrectBlackLines(boolean value) {
 		pilot.setAngularAcceleration(100);
+//		if(correct_at_black_line == true && value == false) {
+//			Navigate.move();
+//		}
 		correct_at_black_line = value;
+		
 		pilot.setAngularAcceleration(ANGULAR_ACCELERATION);
 	}
 	
@@ -208,6 +211,10 @@ public class PilotRobot {
 		float distance = (float)(Math.PI * 4.05 * avgRevolutions);
 		
 		return distance;
+	}
+	
+	public boolean getMoving() {
+		return getPilot().isMoving();
 	}
 	
 	public void resetTachoCount() {

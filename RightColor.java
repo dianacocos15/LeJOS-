@@ -60,7 +60,7 @@ public class RightColor implements Behavior {
 		
 		if(PilotRobot.correctionIncrementCount > 10) {
 			pilot.travel(0.05);
-			PilotRobot.runMove = true;
+			//PilotRobot.runMove = true;
 		}
 		
 		pilot.setAngularAcceleration(PilotRobot.ANGULAR_ACCELERATION);

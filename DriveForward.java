@@ -74,12 +74,7 @@ public class DriveForward implements Behavior {
 		 * Check if necessary to correct.
 		 * */
 		pilot.setLinearAcceleration(PilotRobot.ACCELERATION);
-		if(failure_to_correct && !(me.getBehavior() == "Left Color" || me.getBehavior() == "Right Color")) {
-			failure_to_correct = false;
-			Navigate.move();
-			Navigate.drawGrid();
-		}
-		else if(me.getBehavior() == "Left Color" || me.getBehavior() == "Right Color") {
+		if(me.getBehavior() == "Left Color" || me.getBehavior() == "Right Color") {
 			Sound.beep();
 			pilot.travel(13);
 			dontDrive = true;
@@ -180,7 +175,15 @@ public class DriveForward implements Behavior {
 		pilot.setAngularAcceleration(PilotRobot.ACCELERATION);
 	}
 	
-	public static void updatePositionIfMissedBlackLine(int pre, int post) {
+	public void updatePositionIfMissedBlackLine(int pre, int post) {
+		while(pilot.isMoving()) {
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		float distanceTravelled = PilotRobot.getTravelDistance();
 		
 		if(distanceTravelled > 20 && (pre == post)) {
