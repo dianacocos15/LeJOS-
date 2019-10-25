@@ -6,7 +6,7 @@ public class AStar {
     private final List<Node> open; //list of unexpanded neighbours
     private final List<Node> closed; //list of expanded neighbours
     private final List<Node> path;
-    private final Cell[][] maze;
+    private Cell[][] maze;
     private Node now;
     private final int xstart;
     private final int ystart;
@@ -184,30 +184,29 @@ public class AStar {
 //        };
     
     public List<Node> runAlgorithm(int xstart, int ystart, int xend, int yend) {
-    
         AStar as = new AStar(maze, xstart, ystart);
         List<Node> path = as.findPathTo(xend, yend);
         if (path != null) {
         	for(Node n: path) {
-        		System.out.print("[" + n.x + ", " + n.y + "] ");
+        		//System.out.print("[" + n.x + ", " + n.y + "] ");
         		maze[n.y][n.x].setValue("-1");
         	}
-            System.out.printf("\nTotal cost: %.02f\n", path.get(path.size() - 1).g);
+            //System.out.printf("\nTotal cost: %.02f\n", path.get(path.size() - 1).g);
  
             for (Cell[] maze_row : maze) {
                 for (Cell maze_entry : maze_row) {
                     switch (maze_entry.toString()) {
                         case "0":
-                            System.out.print("_");
+                            //System.out.print("_");
                             break;
                         case "-1":
-                            System.out.print("*");
+                            //System.out.print("*");
                             break;
                         default:
-                            System.out.print("#");
+                            //System.out.print("#");
                     }
                 }
-                System.out.println();
+                //System.out.println();
             }
             return path;
         }

@@ -12,11 +12,13 @@
 
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.subsumption.Behavior;
-
+import java.util.Collections;
 import java.util.List;
 
+import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.GraphicsLCD;
+import lejos.hardware.lcd.LCD;
 
 public class BackUp implements Behavior {
 	public boolean suppressed;
@@ -49,22 +51,69 @@ public class BackUp implements Behavior {
 	
 	public void action() {
 		// Allow this method to run
-		
+		PilotRobot.listIndex = 0;
 		me.setBehavior("Back Up");
 		suppressed = false;
-		AStar astar = new AStar(PilotRobot.grid, Navigate.i, Navigate.j);
-		List<AStar.Node> n = astar.runAlgorithm(Navigate.i, Navigate.j, PilotRobot.finalGoalx,PilotRobot.finalGoaly);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		AStar astar = new AStar(PilotRobot.grid, Navigate.j, Navigate.i);
+		List<AStar.Node> n = astar.runAlgorithm(Navigate.j, Navigate.i, PilotRobot.finalGoaly,PilotRobot.finalGoalx);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		PilotRobot.list = n;
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		LCD.clear();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for(AStar.Node cell : PilotRobot.list) {
+			System.out.println(cell.y + " " + cell.x);
+		}
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("" + PilotRobot.grid[1][4].toInteger());
+		Button.waitForAnyPress();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("" + Navigate.i +  " " + Navigate.j);
 		PilotRobot.listIndex = 0;
 		
-		//Recalculate and add back list
 		
+		PilotRobot.nextCoordinate = true;
+	    
 		
-		//me.rotate(90);
-		//Navigate.orientation++;
-		me.setCorrectBlackLines(true);
-	    
-	    
 	    while(pilot.isMoving() && !suppressed) {
 	        Thread.yield();  // wait till turn is complete or suppressed is called
 	    }

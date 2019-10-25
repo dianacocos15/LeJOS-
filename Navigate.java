@@ -4,7 +4,7 @@ import lejos.hardware.lcd.GraphicsLCD;
 import lejos.robotics.navigation.MovePilot;
 
 public class Navigate {
-	static int orientation = 1;
+	static int orientation = 2; //CHANGEBACK
 	//1 = E (how we set off)
 	//2 = S
 	//3 = W
@@ -35,14 +35,18 @@ public class Navigate {
 					lcd.drawString(r, k*15 + 40, l*15, GraphicsLCD.HCENTER);
 				}
 				else {
-					lcd.drawString(PilotRobot.grid[k][l].getValue(), k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+					if(PilotRobot.grid[k][l].getValue() == "100") {
+						lcd.drawString("X", k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+					}
+					else {
+						lcd.drawString(PilotRobot.grid[k][l].getValue(), k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+					}
 				}
 			}
 		}
 	}
 	
 	public static void move() {
-			Sound.beep();
 			switch(orientation) {
 			default: orientation = 1;
 			case 1: i++;
@@ -113,16 +117,16 @@ public class Navigate {
 		}
 		
 		if (obstacleNorth){
-			PilotRobot.grid[i][j-1].setValue("100");
+			PilotRobot.grid[i][j-1].setValue("X");
 		}
 		if (obstacleEast){
-			PilotRobot.grid[i+1][j].setValue("100");
+			PilotRobot.grid[i+1][j].setValue("X");
 		}
 		if (obstacleSouth){
-			PilotRobot.grid[i][j+1].setValue("100");
+			PilotRobot.grid[i][j+1].setValue("X");
 		}
 		if (obstacleWest){
-			PilotRobot.grid[i-1][j].setValue("100");
+			PilotRobot.grid[i-1][j].setValue("X");
 		}
 		
 		

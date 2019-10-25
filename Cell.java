@@ -1,4 +1,4 @@
-public class Cell {
+public class Cell implements Cloneable {
 	private String value = "";
 	private double M = 0.0; // Total times observed
 	private double C = 0.0; // Total times detected
@@ -11,6 +11,10 @@ public class Cell {
 	public Cell() {
 		value = "0";
 	}
+	
+	public Cell clone()throws CloneNotSupportedException{  
+		return (Cell)super.clone();  
+	 }
 	
 	public String getValue() {
 		return value;

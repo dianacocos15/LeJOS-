@@ -4,7 +4,7 @@ import java.net.*;
 
 public class PCClient {
 	public static void main(String[] args) throws IOException {
-		String ip = "192.168.70.205"; 
+		String ip = "192.168.70.76"; 
 		
 		if(args.length > 0)
 			ip = args[0];
