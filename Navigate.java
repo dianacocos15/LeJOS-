@@ -13,8 +13,6 @@ public class Navigate {
 	private static String r = ".";
 	static int i = 1;
 	static int j = 1;
-	static Cell[] list = new Cell[6];
-
 	
 	static boolean front  = DriveForward.obstacle_front;
 	static boolean right  = DriveForward.obstacle_right;
@@ -149,5 +147,28 @@ public class Navigate {
 	
 	public static String getY() {
 		return "" + j;
+	}
+	
+	public static String getOrientationAsString() {
+		String orientationAsString = "";
+		
+		switch(orientation) {
+		case 1: orientationAsString = ">";
+			break;
+		case 2: orientationAsString = "V";
+			break;
+		case 3: orientationAsString = "<";
+			break;
+		case 4: orientationAsString = "^";
+			break;
+		}
+		
+		return orientationAsString;
+	}
+	
+	public static String getOrientation() {
+		String orientationNumber = String.valueOf(orientation);
+		
+		return orientationNumber;
 	}
 }

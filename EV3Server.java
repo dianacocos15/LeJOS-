@@ -24,7 +24,7 @@ public static final int port = 1234;
 			for (int x = 0; x < PilotRobot.grid.length; x++) {
 				for(int y = 0; y < PilotRobot.grid[0].length; y++) {
 					try {
-						dOut.writeUTF(String.valueOf(PilotRobot.grid[x][y]));
+						dOut.writeUTF(PilotRobot.grid[x][y].getValue());
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 					}
@@ -32,6 +32,8 @@ public static final int port = 1234;
 			}
 			
 			try {
+				dOut.writeUTF(Navigate.getOrientationAsString());
+				//dOut.writeUTF(Navigate.getOrientation());
 				dOut.writeUTF(Navigate.currentPosition());
 				dOut.writeUTF(Navigate.getX());
 				dOut.writeUTF(Navigate.getY());
@@ -46,7 +48,7 @@ public static final int port = 1234;
 			}
 			catch (IOException e) {}
 			try{
-				sleep(800);
+				sleep(400);
 			}
 			catch(Exception e){
 				// We have no exception handling
