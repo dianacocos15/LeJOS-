@@ -46,7 +46,7 @@ public static final int port = 1234;
 			}
 			catch (IOException e) {}
 			try{
-				sleep(400);
+				sleep(800);
 			}
 			catch(Exception e){
 				// We have no exception handling

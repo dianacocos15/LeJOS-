@@ -65,22 +65,22 @@ public class PilotMonitor extends Thread {
     	while(true){
     		lcd.clear();
     		lcd.setFont(Font.getDefaultFont());
-    		Navigate.drawGrid();
-    		
+    		//Navigate.drawGrid();
+    		System.out.println("("+Navigate.i + "," + Navigate.j + ")");
     		//lcd.drawString("Robot Monitor", lcd.getWidth()/2, 0, GraphicsLCD.HCENTER);
     		 
 //    		lcd.drawString("LColor: "+robot.getRightColourSensor(), 0, 20, 0);
 //    		lcd.drawString("RColor: "+robot.getLeftColourSensor(), 0, 30, 0);
 
     		
-    		if(robot.getCorrectBlackLines() == false && !PilotRobot.runMove) {
-    			if (robot.getLeftColourSensor() == 7 || robot.getRightColourSensor() == 7) {
+    		if(robot.getCorrectBlackLines() == false && !PilotRobot.runMove && PilotRobot.isRotating == false) {
+    			if (robot.getLeftColourSensor() == Color.BLACK || robot.getRightColourSensor() == Color.BLACK) {
     				Sound.beep();
     				blacklinecount++;
     				Navigate.move();
-    				while(robot.getLeftColourSensor() == 7 || robot.getRightColourSensor() == 7) {
+    				while(robot.getLeftColourSensor() == Color.BLACK || robot.getRightColourSensor() == Color.BLACK) {
     					try{
-    		    			sleep(10);
+    		    			sleep(25);
     		    		}
     		    		catch(Exception e){
     		    			// We have no exception handling
@@ -99,7 +99,7 @@ public class PilotMonitor extends Thread {
 //    		lcd.drawString("Dist: "+robot.getDistance(), 0, 50, 0);  
 //    		lcd.drawString("Angle: "+robot.getAngle(), 0, 60, 0);    		
 //    		lcd.drawString("Correct value :  "+robot.getCorrectBlackLines(), 0, 70, 0);
-//    		lcd.drawString("Behaviour"+robot.getBehavior(), 0, 80, 0);
+    		System.out.println("Behaviour"+ robot.getBehavior());
 //    		lcd.drawString("Suppressed "+ DriveForward.suppressed , 0, 90, 0);
     		
     	

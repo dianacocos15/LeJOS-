@@ -49,7 +49,7 @@ public class Travel{
 						//System.out.println("case1, target_y == j - 1");
 					}
 					else if (target_x == i + 1) {
-						System.out.println("case1, target_x == i + 1");
+						//System.out.println("case1, target_x == i + 1");
 						//travel 1
 					} 
 					else if (target_y == j + 1) {

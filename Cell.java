@@ -3,13 +3,32 @@ public class Cell implements Cloneable {
 	private double M = 0.0; // Total times observed
 	private double C = 0.0; // Total times detected
 
+	private int x;
+	private int y;
 	
 	//counter for number of moves so far
 	
 	
 	
-	public Cell() {
+	public Cell(int x, int y) {
+		this.x =x;
+		this.y =y;
 		value = "0";
+	}
+	
+	public void setX(int x) {
+		this.x = x;
+	}
+	public int getX() {
+		return x;
+	}
+	
+	public void setY(int y) {
+		this.y = y;
+	}
+	
+	public int getY() {
+		return y;
 	}
 	
 	public Cell clone()throws CloneNotSupportedException{  

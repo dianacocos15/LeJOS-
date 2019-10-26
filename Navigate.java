@@ -4,7 +4,7 @@ import lejos.hardware.lcd.GraphicsLCD;
 import lejos.robotics.navigation.MovePilot;
 
 public class Navigate {
-	static int orientation = 2; //CHANGEBACK
+	static int orientation = 1; //CHANGEBACK
 	//1 = E (how we set off)
 	//2 = S
 	//3 = W
@@ -13,6 +13,8 @@ public class Navigate {
 	private static String r = ".";
 	static int i = 1;
 	static int j = 1;
+	static Cell[] list = new Cell[6];
+
 	
 	static boolean front  = DriveForward.obstacle_front;
 	static boolean right  = DriveForward.obstacle_right;

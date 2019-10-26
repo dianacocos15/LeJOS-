@@ -24,7 +24,10 @@ public class nextCoordinate implements Behavior {
 	@Override
 	public boolean takeControl() {
 		// TODO Auto-generated method stub
-		return PilotRobot.nextCoordinate;
+		if(me.getBehavior() != "Right Color" && me.getBehavior() != "Left Color") {
+			return PilotRobot.nextCoordinate;
+		}
+		return false;
 	}
 	
 	
@@ -36,28 +39,25 @@ public class nextCoordinate implements Behavior {
 		
 		//System.out.print(newList);
 		//System.out.print("size is :" + newList.size());
+		me.setBehavior("Next Behaviour");
+		if(PilotRobot.finalGoalx == Navigate.i && PilotRobot.finalGoaly == Navigate.j) {
+			PilotRobot.reached = true;
+			return;
+		}
+		else if (PilotRobot.changedValues) {
+			getList();
+			PilotRobot.changedValues = false;
+		}
+		
 		
 		AStar.Node n = newList.get(PilotRobot.listIndex);
 		Travel t = new Travel(n.y,n.x, me);
 		if(PilotRobot.grid[n.y][n.x].getValue() == "X") {
-			Cell[][] newGrid;
-			try {
-				newGrid = PilotRobot.getGridCopy();
-			} catch (CloneNotSupportedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				newGrid = PilotRobot.grid;
-			}
-			AStar astar = new AStar(newGrid, Navigate.j, Navigate.i);
-			List<AStar.Node> newNodes = astar.runAlgorithm(Navigate.j, Navigate.i, PilotRobot.finalGoaly, PilotRobot.finalGoalx);
-			newList = new ArrayList<AStar.Node>(newNodes);
-			for(AStar.Node node : newList) {
-				System.out.println(node.y + "" + node.x);
-				
-			}
-			PilotRobot.listIndex = 1;
+			getList();
 			//System.out.println(Navigate.i + " " + Navigate.j);
+			return;
 		}
+		
 		else {
 			//System.out.println("Entered the else");
 			//Button.waitForAnyPress();
@@ -86,5 +86,25 @@ public class nextCoordinate implements Behavior {
 	public void suppress() {
 		// TODO Auto-generated method stub
 		suppressed = true;
+	}
+	
+	public void getList() {
+		Cell[][] newGrid;
+		try {
+			newGrid = PilotRobot.getGridCopy();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			newGrid = PilotRobot.grid;
+		}
+		AStar astar = new AStar(newGrid, Navigate.j, Navigate.i);
+		List<AStar.Node> newNodes = astar.runAlgorithm(Navigate.j, Navigate.i, PilotRobot.finalGoaly, PilotRobot.finalGoalx);
+		newList = new ArrayList<AStar.Node>(newNodes);
+		for(AStar.Node node : newList) {
+			//System.out.println(node.y + "" + node.x);
+			
+		}
+		//Button.waitForAnyPress();
+		PilotRobot.listIndex = 1;
 	}
 }
