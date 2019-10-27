@@ -13,6 +13,9 @@ public class Travel{
 	public boolean suppressed;
 	public static final double CELL_DISTANCE = 24.5;
 	
+	static int numberOfMoves = 0;
+	private boolean isRotating;
+	
 	PilotRobot me;
 	MovePilot robot;
 	
@@ -32,6 +35,7 @@ public class Travel{
 	public boolean travelCorrectDirection() {
 		//System.out.println("Computing Direction ... ");
 		//Button.waitForAnyPress();
+		me.setBehavior("Travel");
 		if(i == target_x && j == target_y) {
 			//System.out.print("\n("+Navigate.i +"," +Navigate.j +") == (" + target_x + "," + target_y+")");
 			return true;
@@ -45,22 +49,26 @@ public class Travel{
 						if (target_y == j - 1) { // Go north
 						//rotate -90, travel 1
 						me.rotate(-90);
+						isRotating = true;
 						Navigate.orientation = 4;
 						//System.out.println("case1, target_y == j - 1");
 					}
 					else if (target_x == i + 1) {
 						//System.out.println("case1, target_x == i + 1");
 						//travel 1
+						isRotating = false;
 					} 
 					else if (target_y == j + 1) {
 						//rotate 90, travel 1
 						me.rotate(90);
+						isRotating = true;
 						Navigate.orientation = 2;
 						//System.out.println("case1, target_y == j + 1");
 					}
 					else if (target_x == i - 1) {
 						//rotate 180, travel 1
 						me.rotate(180);
+						isRotating = true;
 						Navigate.orientation = 3; 
 						//System.out.println("case1, target_x == i - 1");
 					}
@@ -71,23 +79,27 @@ public class Travel{
 						if (target_y == j - 1) {
 						//travel 1
 						me.rotate(180);
+						isRotating = true;
 						Navigate.orientation = 4;
 						//System.out.println("case2, target_y == j - 1");
 					}
 					else if (target_x == i + 1) {
 						//rotate -90, travel 1
 						me.rotate(-90);
+						isRotating = true;
 						Navigate.orientation = 1;
 						//System.out.println("case2, target_x == i + 1");
 					} 
 					else if (target_y == j + 1) {
 						//travel 1
 						//System.out.println("case2, target_y == j + 1");
+						isRotating = false;
 					}
 					else if (target_x == i - 1) {
 						//rotate 90, travel 1
 						me.rotate(90);
 						Navigate.orientation = 3;
+						isRotating = true;
 						//System.out.println("case2, target_x == i - 1");
 					}
 						break;
@@ -98,23 +110,27 @@ public class Travel{
 						//rotate 90, travel 1
 						me.rotate(90);
 						Navigate.orientation = 4;
+						isRotating = true;
 						//System.out.println("case3, target_y == j - 1");
 					}
 					else if (target_x == i + 1) {
 						//rotate 180, travel 1
 						me.rotate(180);
 						Navigate.orientation = 1;
+						isRotating = true;
 						//System.out.println("case3, target_x == i + 1");
 					} 
 					else if (target_y == j + 1) {
 						//rotate -90, travel 1
 						me.rotate(-90);
 						Navigate.orientation = 2;
+						isRotating = true;
 						//System.out.println("case3, target_y == j + 1");
 					}
 					else if (target_x == i - 1) {
 						//travel 1
 						//System.out.println("case3, target_x == i - 1");
+						isRotating = false;
 					}
 						
 						break;
@@ -124,28 +140,38 @@ public class Travel{
 						if (target_y == j - 1) {
 						//travel 1
 						//System.out.println("case4, target_y == j - 1");
+						isRotating = false;
 					}
 					else if (target_x == i + 1) {
 						//rotate 90, travel 1
 						me.rotate(90);
 						Navigate.orientation = 1;
+						isRotating = true;
 						//System.out.println("case4, target_x == i + 1");
 					} 
 					else if (target_y == j + 1) {
 						//rotate 180, travel 1
 						me.rotate(180);
 						Navigate.orientation = 2;
+						isRotating = true;
 						//System.out.println("case4, target_y == j + 1");
 					}
 					else if (target_x == i - 1) {
 						//rotate -90, travel 1
 						me.rotate(-90);
 						Navigate.orientation = 3;
+						isRotating = true;
 						//System.out.println("case4, target_x == i - 1");
 					}
 						break;
 					}
-				}	
+				}
+			
+			if (isRotating == true) {
+				numberOfMoves += 2;
+			}
+			
+			else numberOfMoves++;
 		}
 		return false;
 		

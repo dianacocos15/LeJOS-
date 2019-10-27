@@ -1,5 +1,6 @@
 import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
+import lejos.hardware.lcd.Font;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.robotics.navigation.MovePilot;
 
@@ -13,6 +14,7 @@ public class Navigate {
 	private static String r = ".";
 	static int i = 1;
 	static int j = 1;
+	static Cell[][] oldGrid;
 	static Cell[] list = new Cell[6];
 
 	
@@ -31,17 +33,41 @@ public class Navigate {
 	}
 	
 	public static void drawGrid() {
-		for(int k = 0; k < PilotRobot.grid.length; k++) {
-			for(int l = 0; l < PilotRobot.grid[0].length; l++) {
-				if(k == i && j == l) {
-					lcd.drawString(r, k*15 + 40, l*15, GraphicsLCD.HCENTER);
-				}
-				else {
-					if(PilotRobot.grid[k][l].getValue() == "100") {
-						lcd.drawString("X", k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+		if(PilotRobot.grid != oldGrid) {
+			
+			lcd.setFont(Font.getSmallFont());
+			lcd.clear();
+			
+			if(robot.currentMode == "Letters") {
+				for(int k = 0; k < PilotRobot.grid.length; k++) {
+					for(int l = 0; l < PilotRobot.grid[0].length; l++) {
+						if(k == i && j == l) {
+							lcd.drawString(r, k*15 + 40, l*15, GraphicsLCD.HCENTER);
+						}
+						else {
+							if(PilotRobot.grid[k][l].getValue() == "100") {
+								lcd.drawString("X", k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+							}
+							else {
+								lcd.drawString(PilotRobot.grid[k][l].getValue(), k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+							}
+						}
 					}
-					else {
-						lcd.drawString(PilotRobot.grid[k][l].getValue(), k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+				}
+			}else {
+				for(int k = 0; k < PilotRobot.grid.length; k++) {
+					for(int l = 0; l < PilotRobot.grid[0].length; l++) {
+						if(k == i && j == l) {
+							lcd.drawString(r, k*15 + 40, l*15, GraphicsLCD.HCENTER);
+						}
+						else {
+							if(PilotRobot.grid[k][l].getValue() == "100") {
+								lcd.drawString("X", k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+							}
+							else {
+								lcd.drawString(String.valueOf((int)PilotRobot.grid[k][l].returnProbability()), k*15 + 40, l*15, GraphicsLCD.HCENTER);
+							}
+						}
 					}
 				}
 			}
@@ -78,6 +104,11 @@ public class Navigate {
 		boolean obstacleEast = false; // 
 		boolean obstacleSouth = false; // 
 		boolean obstacleWest = false; // 		
+		
+		boolean checkedNorth = false; //
+		boolean checkedEast = false; // 
+		boolean checkedSouth = false; // 
+		boolean checkedWest = false; // 		
 		
 		if(front == true) {
 			switch(Navigate.orientation) {
@@ -118,19 +149,63 @@ public class Navigate {
 			}
 		}
 		
-		if (obstacleNorth){
-			PilotRobot.grid[i][j-1].setValue("X");
-		}
-		if (obstacleEast){
-			PilotRobot.grid[i+1][j].setValue("X");
-		}
-		if (obstacleSouth){
-			PilotRobot.grid[i][j+1].setValue("X");
-		}
-		if (obstacleWest){
-			PilotRobot.grid[i-1][j].setValue("X");
+		
+		switch(Navigate.orientation) {
+			case 1: 
+				checkedEast = true;
+				checkedNorth = true;
+				checkedSouth=true;
+			case 2:
+				checkedEast = true;
+				checkedSouth=true;
+				checkedWest =true;
+			case 3:
+				checkedNorth = true;
+				checkedSouth=true;
+				checkedWest=true;
+			case 4:
+				checkedNorth=true;
+				checkedEast =true;
+				checkedWest=true;
 		}
 		
+		if (obstacleNorth){
+			PilotRobot.grid[i][j-1].setValue("X");
+			Cell.incrementOccupiedCell();
+		} else Cell.incrementEmptyCell();
+
+		if (obstacleEast){
+			PilotRobot.grid[i+1][j].setValue("X");
+			Cell.incrementOccupiedCell();
+		} else Cell.incrementEmptyCell();
+		
+		if (obstacleSouth){
+			PilotRobot.grid[i][j+1].setValue("X");
+			Cell.incrementOccupiedCell();
+		} else Cell.incrementEmptyCell();
+		
+		if (obstacleWest){
+			PilotRobot.grid[i-1][j].setValue("X");
+			Cell.incrementOccupiedCell();
+		} else Cell.incrementEmptyCell();
+		
+		
+		//Increment visited for each block checked for obstacles.
+		if (checkedNorth){
+			PilotRobot.grid[i][j-1].incrementC();
+		}
+		if (checkedEast){
+			PilotRobot.grid[i+1][j].incrementC();
+		}
+		if (checkedSouth){
+			PilotRobot.grid[i][j+1].incrementC();
+		}
+		if (checkedWest){
+			PilotRobot.grid[i-1][j].incrementC();
+		}
+		
+		//increment checked for block standing on.
+		PilotRobot.grid[i][j].incrementC();
 		
 		front = false;
 		left = false;
@@ -149,5 +224,22 @@ public class Navigate {
 	
 	public static String getY() {
 		return "" + j;
+	}
+	
+	public static String getOrientationAsString() {
+		String orientationAsString = "";
+		
+		switch(orientation) {
+		case 1: orientationAsString = ">";
+			break;
+		case 2: orientationAsString = "V";
+			break;
+		case 3: orientationAsString = "<";
+			break;
+		case 4: orientationAsString = "^";
+			break;
+		}
+		
+		return orientationAsString;
 	}
 }

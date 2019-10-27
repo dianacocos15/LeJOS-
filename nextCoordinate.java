@@ -44,7 +44,8 @@ public class nextCoordinate implements Behavior {
 			PilotRobot.reached = true;
 			return;
 		}
-		else if (PilotRobot.changedValues) {
+		
+		if (PilotRobot.changedValues) {
 			getList();
 			PilotRobot.changedValues = false;
 		}
@@ -52,6 +53,12 @@ public class nextCoordinate implements Behavior {
 		
 		AStar.Node n = newList.get(PilotRobot.listIndex);
 		Travel t = new Travel(n.y,n.x, me);
+		if(newList.get(newList.size() -1) == n && PilotRobot.grid[n.y][n.x].getValue() == "X") {
+			PilotRobot.reached = true;
+			return;
+		}
+		
+	
 		if(PilotRobot.grid[n.y][n.x].getValue() == "X") {
 			getList();
 			//System.out.println(Navigate.i + " " + Navigate.j);
@@ -100,6 +107,11 @@ public class nextCoordinate implements Behavior {
 		AStar astar = new AStar(newGrid, Navigate.j, Navigate.i);
 		List<AStar.Node> newNodes = astar.runAlgorithm(Navigate.j, Navigate.i, PilotRobot.finalGoaly, PilotRobot.finalGoalx);
 		newList = new ArrayList<AStar.Node>(newNodes);
+		if(newNodes.get(newNodes.size() - 1).g > 100) {
+			PilotRobot.reached = true;
+			return;
+		}
+		
 		for(AStar.Node node : newList) {
 			//System.out.println(node.y + "" + node.x);
 			

@@ -1,6 +1,7 @@
 import java.text.DecimalFormat;
 
 import lejos.hardware.Button;
+import lejos.hardware.Keys;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.Font;
 import lejos.hardware.lcd.GraphicsLCD;
@@ -63,17 +64,20 @@ public class PilotMonitor extends Thread {
     	// The decimalformat here is used to round the number to three significant digits
 		DecimalFormat df = new DecimalFormat("####0.000");
     	while(true){
-    		lcd.clear();
-    		lcd.setFont(Font.getDefaultFont());
-    		//Navigate.drawGrid();
-    		System.out.println("("+Navigate.i + "," + Navigate.j + ")");
+    		//lcd.clear();
+    		//lcd.setFont(Font.getDefaultFont());
+    		Navigate.drawGrid();
+    		//System.out.println("("+Navigate.i + "," + Navigate.j + ")");
     		//lcd.drawString("Robot Monitor", lcd.getWidth()/2, 0, GraphicsLCD.HCENTER);
     		 
 //    		lcd.drawString("LColor: "+robot.getRightColourSensor(), 0, 20, 0);
 //    		lcd.drawString("RColor: "+robot.getLeftColourSensor(), 0, 30, 0);
 
+    		if(PilotRobot.finished) {
+    			break;
+    		}
     		
-    		if(robot.getCorrectBlackLines() == false && !PilotRobot.runMove && PilotRobot.isRotating == false) {
+    		if(robot.getCorrectBlackLines() == false && !PilotRobot.runMove && PilotRobot.isRotating == false && !PilotRobot.finished) {
     			if (robot.getLeftColourSensor() == Color.BLACK || robot.getRightColourSensor() == Color.BLACK) {
     				Sound.beep();
     				blacklinecount++;
@@ -99,7 +103,7 @@ public class PilotMonitor extends Thread {
 //    		lcd.drawString("Dist: "+robot.getDistance(), 0, 50, 0);  
 //    		lcd.drawString("Angle: "+robot.getAngle(), 0, 60, 0);    		
 //    		lcd.drawString("Correct value :  "+robot.getCorrectBlackLines(), 0, 70, 0);
-    		System.out.println("Behaviour"+ robot.getBehavior());
+    		//System.out.println("Behaviour"+ robot.getBehavior());
 //    		lcd.drawString("Suppressed "+ DriveForward.suppressed , 0, 90, 0);
     		
     	
@@ -118,6 +122,15 @@ public class PilotMonitor extends Thread {
     			// We have no exception handling
     			;
     		}
+    		
+    		if(Button.getButtons() == Keys.ID_LEFT) {
+    			robot.currentMode = "Letters";
+    		}
+    		
+    		if(Button.getButtons() == Keys.ID_RIGHT) {
+    			robot.currentMode = "Probability";
+    		}
+    		
     		
     		if(Button.ESCAPE.isDown()) {
     			System.exit(0);

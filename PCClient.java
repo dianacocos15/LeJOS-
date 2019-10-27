@@ -1,10 +1,15 @@
 import java.io.*;
 import java.net.*;
 
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+
 
 public class PCClient {
 	public static void main(String[] args) throws IOException {
-		String ip = "192.168.70.76"; 
+		String ip = "192.168.70.136"; 
 		
 		if(args.length > 0)
 			ip = args[0];
@@ -12,7 +17,20 @@ public class PCClient {
 		InputStream in;
 		Socket sock;
 		
+		 JFrame frame = new JFrame("Robot Navigation Grid");
+	     JTable table = new JTable(9,8);
+		
 		String str[][] = new String[8][9];
+		
+		 table.setRowHeight(100);
+		 table.setFont(new java.awt.Font("", 1, 42));
+		 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	     frame.setSize(1000,1000);
+	     frame.getContentPane().add(table); 
+	     frame.setVisible(true);
+	     
+	     DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+	     centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 		
 		
 		while(true) {
@@ -28,7 +46,8 @@ public class PCClient {
 						System.out.print("\n");
 						for(int y = 0; y < 9; y++) {
 							str[x][y] = dIn.readUTF();
-							//System.out.print(str[x][y]);
+							table.getColumnModel().getColumn(x).setCellRenderer(centerRenderer);
+							table.setValueAt(str[x][y], y, x);
 						}
 					}
 					System.out.println("\n");
@@ -37,6 +56,7 @@ public class PCClient {
 					System.out.println("\n");
 
 					
+					String orientation = dIn.readUTF();
 					
 					String position = dIn.readUTF();
 					
@@ -48,7 +68,7 @@ public class PCClient {
 						System.out.print("\n");
 						for(int y = 0; y < 8; y++) {
 							if(x == Integer.parseInt(xCoord) && y == Integer.parseInt(yCoord)) {
-								System.out.print(".");
+								table.setValueAt(orientation, x, y);
 							}
 							else {
 								System.out.print("\nCurrent Pos : " + str[y][x]);

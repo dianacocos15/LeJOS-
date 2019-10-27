@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 import lejos.hardware.Brick;
@@ -37,14 +38,14 @@ public class PilotRobot {
 	private SampleProvider distSP, gyroSP, leftSP, rightSP; //leftSP, rightSP	
 	private float[] distSample, angleSample, leftSample, rightSample; //removed leftSample, rightSample
 	private boolean correct_at_black_line = false;
-	private String whichBehavior;
+	private static String whichBehavior;
 	boolean correct_head_turn;
 	boolean rotateAction;
 
 	static int correctionIncrementCount = 0;
 	static char[] direction = {'N', 'E', 'S', 'W'};
 	static Cell[][] grid = new Cell[8][9];
-	static Cell[] cellList = new Cell[6];
+	static ArrayList<Cell> cellList = new ArrayList<Cell>();
 	static int cellIndex = 0;
 	static boolean changedValues = true;
 	
@@ -58,7 +59,7 @@ public class PilotRobot {
 	static final int ACCELERATION = 20;
 	static final int DECELERATION = 100; 
 	static final int DISTANCE = 100;
-	static final int TOP_SPEED = 30;
+	static final int TOP_SPEED = 40;
 	static final int ANGULAR_ACCELERATION = 40;
 	static final double DISTANCE_FROM_THE_WALL = 0.07;
 	static final int ROTATE_HEAD_LEFT = 90;
@@ -74,6 +75,8 @@ public class PilotRobot {
 	static boolean runMove = false;
 	static GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
 	private ColorIdentifier colorID = new ColorIdentifier();
+	static String currentMode = "Letters";
+	public static boolean finished;
 
 	
 	private MovePilot pilot;	
@@ -118,12 +121,12 @@ public class PilotRobot {
 			}
 		}
 		
-		 cellList[0] = PilotRobot.grid[1][1];
-		 cellList[1] = PilotRobot.grid[6][1];
-		 cellList[2] = PilotRobot.grid[6][4];
-		 cellList[3] = PilotRobot.grid[1][4];
-		 cellList[4] = PilotRobot.grid[1][7];
-		 cellList[5] = PilotRobot.grid[6][7]; 
+		 cellList.add(PilotRobot.grid[1][1]);
+		 cellList.add(PilotRobot.grid[6][1]);
+		 cellList.add(PilotRobot.grid[6][4]);
+		 cellList.add(PilotRobot.grid[1][4]);
+		 cellList.add(PilotRobot.grid[1][7]);
+		 cellList.add(PilotRobot.grid[6][7]);
 		
 	}
 	
@@ -214,7 +217,7 @@ public class PilotRobot {
 		whichBehavior = behavior;
 	}
 	
-	public String getBehavior() {
+	public static String getBehavior() {
 		return whichBehavior;
 	}
 	

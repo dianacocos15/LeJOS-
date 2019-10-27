@@ -24,7 +24,9 @@ public static final int port = 1234;
 			for (int x = 0; x < PilotRobot.grid.length; x++) {
 				for(int y = 0; y < PilotRobot.grid[0].length; y++) {
 					try {
-						dOut.writeUTF(String.valueOf(PilotRobot.grid[x][y]));
+						double holder = PilotRobot.grid[x][y].returnProbability();
+						String probability = String.valueOf(holder);
+						dOut.writeUTF(probability);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 					}
@@ -32,6 +34,7 @@ public static final int port = 1234;
 			}
 			
 			try {
+				dOut.writeUTF(Navigate.getOrientationAsString());
 				dOut.writeUTF(Navigate.currentPosition());
 				dOut.writeUTF(Navigate.getX());
 				dOut.writeUTF(Navigate.getY());
