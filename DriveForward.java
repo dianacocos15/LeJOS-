@@ -27,8 +27,6 @@ public class DriveForward implements Behavior {
 	private MovePilot pilot;
 	private boolean dontDrive = false;
 	private boolean failure_to_correct;// Prevention variable - if unable to detect black lines and travels past them use gyroscope.
-//	private static int i = Navigate.i;
-//	private static int j = Navigate.j;
 	
 	static boolean obstacle_front;
 	static boolean obstacle_right;
@@ -44,13 +42,7 @@ public class DriveForward implements Behavior {
 	public void suppress(){
 		suppressed = true;
 	}
-
-	// This returns true, so will always take control (if
-	// no higher priority behaviour also takes control).
-	// We could modify this to look for a "finish" variable
-	// so that if the robot should stop, then we could simply
-	// not take control.  If no behaviour takes control, the
-	// Arbritrator will end.
+	
 	public boolean takeControl(){
 		if (!pilot.isMoving()) {
 			return true;	
@@ -66,28 +58,9 @@ public class DriveForward implements Behavior {
 		
 		suppressed = false;
 		
-		if(Navigate.i == PilotRobot.finalGoaly && PilotRobot.finalGoalx == Navigate.j) {
-			PilotRobot.nextCoordinate = true;
-			return;
-		}
-		
-		System.out.println("Drive Forward");
 		
 		// Go forward
 		pilot = me.getPilot();
-		
-		if(me.getDistance() < 0.18) {
-			Navigate.front = true;
-			Navigate.markObstacles();
-			return;
-		}
-		
-		
-		if(me.getBehavior() == "Drive Forward" && failure_to_correct == true) {
-			Sound.twoBeeps();
-			Navigate.move();
-			return;
-		}
 		
 		/**
 		 * Check if necessary to correct.
@@ -96,11 +69,6 @@ public class DriveForward implements Behavior {
 		if(me.getBehavior() == "Left Color" || me.getBehavior() == "Right Color") {
 			Sound.beep();
 			pilot.travel(13);
-			if(me.getCorrectBlackLines() == true) {
-				Navigate.move();
-				me.setCorrectBlackLines(false);
-			}
-			
 			dontDrive = true;
 			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
 			checkObstacles();
@@ -109,10 +77,8 @@ public class DriveForward implements Behavior {
 		else if(me.getCorrectBlackLines() == true && dontDrive == false) {
 			suppressed = false;
 			pilot.setLinearAcceleration(2);
-			pilot.setLinearSpeed(3);
 			pilot.travel(24.5, true);
 			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
-			pilot.setLinearSpeed(PilotRobot.TOP_SPEED);
 			failure_to_correct = true;
 		}
 		else if (dontDrive == false){
@@ -139,7 +105,6 @@ public class DriveForward implements Behavior {
 	
 	
 	public void checkObstacles() {
-		System.out.println("Entered CheckObstacles");
 		pilot.setAngularAcceleration(100);
 		me.correct_head_turn = false;
 		boolean rotateAction = true;
@@ -150,17 +115,16 @@ public class DriveForward implements Behavior {
 			me.correct_head_turn = true;
 		}
 		
-		if (me.distanceSample() < 0.18) {
+		if (me.distanceSample() < 0.10) {
 			Navigate.front = true;
-			//Navigate.markObstacles();
+			Navigate.markObstacles();
 		}
 		
 		me.rotateHead(PilotRobot.ROTATE_HEAD_LEFT);
 		pilot.rotate(-10);
-		if(me.distanceSample() < 0.18) {
+		if(me.distanceSample() < 0.15) {
 			Navigate.left = true;
-			System.out.println("Rotate left");
-			//Navigate.markObstacles();
+			Navigate.markObstacles();
 		}
 		
 		if (me.getDistance() < PilotRobot.DISTANCE_FROM_THE_WALL && rotateAction && me.correct_head_turn == false) {
@@ -177,36 +141,30 @@ public class DriveForward implements Behavior {
 		
 		me.rotateHead(PilotRobot.ROTATE_HEAD_RIGHT);
 		pilot.rotate(20);
-		if(me.distanceSample() < 0.18) {
+		if(me.distanceSample() < 0.15) {
 			Navigate.right = true;
-			System.out.println("Rotate Right");
-			//Navigate.markObstacles();
+			Navigate.markObstacles();
 		}
 		
-//		if (me.getDistance() < PilotRobot.DISTANCE_FROM_THE_WALL && rotateAction && me.correct_head_turn == false) {
-//			wallCorrectionDirection = PilotRobot.ROTATE_ROBOT_LEFT;
-//			me.correct_head_turn = true;
-//		}
-//		
-//		else if (me.getDistance() < 0.23 && me.getDistance() > 0.13 && me.correct_head_turn == false) {
-//			wallCorrectionDirection = PilotRobot.ROTATE_ROBOT_RIGHT;
-//			me.correct_head_turn = true;
-//		}
+		if (me.getDistance() < PilotRobot.DISTANCE_FROM_THE_WALL && rotateAction && me.correct_head_turn == false) {
+			wallCorrectionDirection = PilotRobot.ROTATE_ROBOT_LEFT;
+			me.correct_head_turn = true;
+		}
+		
+		else if (me.getDistance() < 0.23 && me.getDistance() > 0.13 && me.correct_head_turn == false) {
+			wallCorrectionDirection = PilotRobot.ROTATE_ROBOT_RIGHT;
+			me.correct_head_turn = true;
+		}
 		me.rotateHead(PilotRobot.ROTATE_HEAD_CENTER);
-		System.out.println("Head Center");
 		pilot.rotate(-10);
 		
 		if(me.correct_head_turn) {
 			me.setCorrectBlackLines(true);
 		}
 		
-		
-		Navigate.markObstacles();
-		
 		pilot.rotate(wallCorrectionDirection);
 		wallCorrectionDirection = 0;	
 		pilot.setAngularAcceleration(PilotRobot.ACCELERATION);
-		System.out.println("Finished CheckObstacles");
 	}
 	
 	public void updatePositionIfMissedBlackLine(int pre, int post) {

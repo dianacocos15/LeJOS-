@@ -17,21 +17,26 @@ public static final int port = 1234;
 			OutputStream out = client.getOutputStream();
 			dOut = new DataOutputStream(out);
 		}catch(IOException e) {
-			
+			e.printStackTrace();
 		}
 		
 		while(true) {
 			for (int x = 0; x < PilotRobot.grid.length; x++) {
-				for(int y = 0; y < PilotRobot.grid[0].length; y++) {
+				for(int y = 0; y < PilotRobot.grid[x].length; y++) {
 					try {
-						dOut.writeUTF(String.valueOf(PilotRobot.grid[x][y]));
+						double holder = PilotRobot.grid[x][y].returnProbability();
+						String probability = String.valueOf(holder);
+						dOut.writeUTF(probability);
+						//dOut.writeUTF(PilotRobot.grid[x][y].getValue());
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
 			}
 			
 			try {
+				dOut.writeUTF(Navigate.getOrientationAsString());
+				//dOut.writeUTF(Navigate.getOrientation());
 				dOut.writeUTF(Navigate.currentPosition());
 				dOut.writeUTF(Navigate.getX());
 				dOut.writeUTF(Navigate.getY());
@@ -44,12 +49,14 @@ public static final int port = 1234;
 				dOut.flush();
 				server.close();
 			}
-			catch (IOException e) {}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 			try{
-				sleep(800);
+				sleep(400);
 			}
 			catch(Exception e){
-				// We have no exception handling
+				e.printStackTrace();
 				;
 			}
 		}

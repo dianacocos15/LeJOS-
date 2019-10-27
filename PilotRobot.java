@@ -35,7 +35,7 @@ public class PilotRobot {
 	private EV3ColorSensor leftColor, rightColor;
 	
 	private SampleProvider distSP, gyroSP, leftSP, rightSP; //leftSP, rightSP	
-	private float[] distSample, angleSample, leftSample, rightSample; //removed leftSample, rightSample
+	private float[] distSample, angleSample, leftColorSample, rightColorSample; //removed leftSample, rightSample
 	private boolean correct_at_black_line = false;
 	private String whichBehavior;
 	boolean correct_head_turn;
@@ -44,16 +44,13 @@ public class PilotRobot {
 	static int correctionIncrementCount = 0;
 	static char[] direction = {'N', 'E', 'S', 'W'};
 	static Cell[][] grid = new Cell[8][9];
-	static Cell[] cellList = new Cell[6];
-	static int cellIndex = 0;
-	static boolean changedValues = true;
+	static String currentMode = "Letters";
 	
 	public static List<AStar.Node> list;
 	public static int listIndex = 0;
 	
 	public static int finalGoalx = 1;
-	public static int finalGoaly = 1;
-	static boolean reached = false;
+	public static int finalGoaly = 6;
 	
 	static final int ACCELERATION = 20;
 	static final int DECELERATION = 100; 
@@ -66,14 +63,12 @@ public class PilotRobot {
 	static final int ROTATE_HEAD_CENTER = 0;
 	static final int ROTATE_ROBOT_RIGHT = 30;
 	static final int ROTATE_ROBOT_LEFT = -30;
-	static final int SAMPLE_SIZE = 50;
+	static final int SAMPLE_SIZE = 300;
 	static boolean nextCoordinate = true;
-	static boolean travelledForward13 = false;
-	static boolean isRotating = false;
 	static float average;
 	static boolean runMove = false;
 	static GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
-	private ColorIdentifier colorID = new ColorIdentifier();
+
 
 	
 	private MovePilot pilot;	
@@ -94,8 +89,8 @@ public class PilotRobot {
 		distSP = usSensor.getDistanceMode();
 		gyroSP = gSensor.getAngleMode();
 		
-		leftSample = new float[leftSP.sampleSize()];		// Size is 1
-		rightSample = new float[rightSP.sampleSize()];		// Size is 1
+//		leftSample = new float[leftSP.sampleSize()];		// Size is 1
+//		rightSample = new float[rightSP.sampleSize()];		// Size is 1
 		distSample = new float[distSP.sampleSize()];		// Size is 1
 		angleSample = new float[gyroSP.sampleSize()];	// Size is 1
 
@@ -114,16 +109,9 @@ public class PilotRobot {
 		//Work ya bastud
 		for(int i =0; i< grid.length; i ++ ) {
 			for(int j=0;j<grid[0].length;j++) {
-				grid[i][j] = new Cell(i,j);
+				grid[i][j] = new Cell();
 			}
 		}
-		
-		 cellList[0] = PilotRobot.grid[1][1];
-		 cellList[1] = PilotRobot.grid[6][1];
-		 cellList[2] = PilotRobot.grid[6][4];
-		 cellList[3] = PilotRobot.grid[1][4];
-		 cellList[4] = PilotRobot.grid[1][7];
-		 cellList[5] = PilotRobot.grid[6][7]; 
 		
 	}
 	
@@ -145,18 +133,14 @@ public class PilotRobot {
 	}
 	
 	// Get the colour from the colour sensor
-		public Color getLeftColourSensor() {
-	    	leftSP.fetchSample(leftSample, 0);
-	    	
-	    	Color left = colorID.findNearest(leftSample);
+		public int getLeftColourSensor() {
+	    	int left = leftColor.getColorID();
 	    	return left;
 		}
 		
 		// Get the colour from the colour sensor
-		public Color getRightColourSensor() {
-	    	rightSP.fetchSample(rightSample, 0);
-	    	
-	    	Color right = colorID.findNearest(rightSample);
+		public int getRightColourSensor() {
+	    	int right = rightColor.getColorID();
 	    	return right;
 		}
 	
@@ -175,7 +159,8 @@ public class PilotRobot {
 	}
 	
 	public void rotate(int value) {
-		isRotating = true;
+		
+
 		int initialAngle = (int)getAngle(); //gyroscope
 		
 		int finalAngle = (int)getAngle();
@@ -187,7 +172,7 @@ public class PilotRobot {
 			pilot.rotate(value - difference);
 			
 		}
-		isRotating = false;
+		
 		setCorrectBlackLines(true);
 	}
 	
@@ -244,15 +229,10 @@ public class PilotRobot {
 		float[] distances = new float[SAMPLE_SIZE];
 		int m = 0;
 		float sum = 0;
-		int count = 0;
 		while (m < distances.length) {
 			if(currentDistance > 0 && currentDistance != Float.POSITIVE_INFINITY) {
 				distances[m] = getDistance();
 				m++;
-			}
-			count++;
-			if (count > SAMPLE_SIZE*3) {
-				return 100;
 			}
 		}
 		

@@ -1,3 +1,4 @@
+import java.awt.Color;
 
 import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
@@ -25,7 +26,7 @@ public class LeftColor implements Behavior {
 	
 	public boolean takeControl(){
 		if(me.getCorrectBlackLines()) {
-			if(Color.BLACK == me.getLeftColourSensor() && Color.BLACK != me.getRightColourSensor()) {
+			if(7 == me.getLeftColourSensor() && 7 != me.getRightColourSensor()) {
 				left = true;
 				return left;
 			}
@@ -43,26 +44,25 @@ public class LeftColor implements Behavior {
 		 * Issue ? Does this mean if neither is black rotate?
 		 * Fix - Exclusive or (only rotate if one is black)
 		 * **/
-		if( Color.BLACK == me.getLeftColourSensor()  ^ Color.BLACK == me.getRightColourSensor()) {
+		if( 7 == me.getLeftColourSensor()  ^ 7 == me.getRightColourSensor()) {
 			pilot.rotate(-3);
 			PilotRobot.correctionIncrementCount++;
 			
 			// Only move if neither is black. Consider commenting this out as behaves odly on colours.
-			if ( Color.BLACK != me.getLeftColourSensor()  && Color.BLACK != me.getRightColourSensor()){
+			if ( 7 != me.getLeftColourSensor()  && 7 != me.getRightColourSensor()){
 				pilot.travel(0.5, true);
 			}
 			
 		}
 		
 		/*Travel if both black*/
-		if ( Color.BLACK == me.getLeftColourSensor()  && Color.BLACK == me.getRightColourSensor()) {
+		if ( 7 == me.getLeftColourSensor()  && 7 == me.getRightColourSensor()) {
 			pilot.setLinearAcceleration(PilotRobot.ACCELERATION);
 			PilotRobot.correctionIncrementCount = 0;
 			pilot.travel(3);
 			pilot.setLinearAcceleration(PilotRobot.DECELERATION);
 			me.setCorrectBlackLines(false);
 			PilotRobot.runMove = true;
-			return;
 		}
 		
 		if(PilotRobot.correctionIncrementCount > 10) {

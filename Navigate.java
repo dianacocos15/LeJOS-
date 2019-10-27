@@ -1,5 +1,7 @@
+import lejos.hardware.Button;
 import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
+import lejos.hardware.lcd.Font;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.robotics.navigation.MovePilot;
 
@@ -10,11 +12,11 @@ public class Navigate {
 	//3 = W
 	//4 = N
 	
+	static Cell[][] oldGrid;
+	
 	private static String r = ".";
 	static int i = 1;
 	static int j = 1;
-	static Cell[] list = new Cell[6];
-
 	
 	static boolean front  = DriveForward.obstacle_front;
 	static boolean right  = DriveForward.obstacle_right;
@@ -31,17 +33,41 @@ public class Navigate {
 	}
 	
 	public static void drawGrid() {
-		for(int k = 0; k < PilotRobot.grid.length; k++) {
-			for(int l = 0; l < PilotRobot.grid[0].length; l++) {
-				if(k == i && j == l) {
-					lcd.drawString(r, k*15 + 40, l*15, GraphicsLCD.HCENTER);
-				}
-				else {
-					if(PilotRobot.grid[k][l].getValue() == "100") {
-						lcd.drawString("X", k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+		if(PilotRobot.grid != oldGrid) {
+			
+			lcd.setFont(Font.getSmallFont());
+			lcd.clear();
+			
+			if(robot.currentMode == "Letters") {
+				for(int k = 0; k < PilotRobot.grid.length; k++) {
+					for(int l = 0; l < PilotRobot.grid[0].length; l++) {
+						if(k == i && j == l) {
+							lcd.drawString(r, k*15 + 40, l*15, GraphicsLCD.HCENTER);
+						}
+						else {
+							if(PilotRobot.grid[k][l].getValue() == "100") {
+								lcd.drawString("X", k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+							}
+							else {
+								lcd.drawString(PilotRobot.grid[k][l].getValue(), k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+							}
+						}
 					}
-					else {
-						lcd.drawString(PilotRobot.grid[k][l].getValue(), k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+				}
+			}else {
+				for(int k = 0; k < PilotRobot.grid.length; k++) {
+					for(int l = 0; l < PilotRobot.grid[0].length; l++) {
+						if(k == i && j == l) {
+							lcd.drawString(r, k*15 + 40, l*15, GraphicsLCD.HCENTER);
+						}
+						else {
+							if(PilotRobot.grid[k][l].getValue() == "100") {
+								lcd.drawString("X", k*15 + 40, l*15, GraphicsLCD.HCENTER);	
+							}
+							else {
+								lcd.drawString(String.valueOf((int)PilotRobot.grid[k][l].returnProbability()), k*15 + 40, l*15, GraphicsLCD.HCENTER);
+							}
+						}
 					}
 				}
 			}
@@ -120,16 +146,23 @@ public class Navigate {
 		
 		if (obstacleNorth){
 			PilotRobot.grid[i][j-1].setValue("X");
-		}
+			Cell.incrementOccupiedCell();
+		} else Cell.incrementEmptyCell();
+
 		if (obstacleEast){
 			PilotRobot.grid[i+1][j].setValue("X");
-		}
+			Cell.incrementOccupiedCell();
+		} else Cell.incrementEmptyCell();
+		
 		if (obstacleSouth){
 			PilotRobot.grid[i][j+1].setValue("X");
-		}
+			Cell.incrementOccupiedCell();
+		} else Cell.incrementEmptyCell();
+		
 		if (obstacleWest){
 			PilotRobot.grid[i-1][j].setValue("X");
-		}
+			Cell.incrementOccupiedCell();
+		} else Cell.incrementEmptyCell();
 		
 		
 		front = false;
@@ -149,5 +182,28 @@ public class Navigate {
 	
 	public static String getY() {
 		return "" + j;
+	}
+	
+	public static String getOrientationAsString() {
+		String orientationAsString = "";
+		
+		switch(orientation) {
+		case 1: orientationAsString = ">";
+			break;
+		case 2: orientationAsString = "V";
+			break;
+		case 3: orientationAsString = "<";
+			break;
+		case 4: orientationAsString = "^";
+			break;
+		}
+		
+		return orientationAsString;
+	}
+	
+	public static String getOrientation() {
+		String orientationNumber = String.valueOf(orientation);
+		
+		return orientationNumber;
 	}
 }
