@@ -156,7 +156,7 @@ public class DriveForward implements Behavior {
 	
 	
 	public void checkObstacles() {
-		System.out.println("Entered CheckObstacles");
+		System.out.println("            ");
 		pilot.setAngularAcceleration(100);
 		me.correct_head_turn = false;
 		boolean rotateAction = true;
@@ -175,6 +175,7 @@ public class DriveForward implements Behavior {
 		me.rotateHead(PilotRobot.ROTATE_HEAD_LEFT);
 		pilot.rotate(-10);
 		if(me.distanceSample() < 0.18) {
+			System.out.println("            ");
 			Navigate.left = true;
 			//Navigate.markObstacles();
 		}
@@ -194,6 +195,7 @@ public class DriveForward implements Behavior {
 		me.rotateHead(PilotRobot.ROTATE_HEAD_RIGHT);
 		pilot.rotate(20);
 		if(me.distanceSample() < 0.18) {
+			System.out.println("            ");
 			Navigate.right = true;
 			//Navigate.markObstacles();
 		}
