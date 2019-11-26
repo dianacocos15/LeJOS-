@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 
 import lejos.hardware.Brick;
@@ -20,46 +19,31 @@ import lejos.robotics.chassis.Wheel;
 import lejos.robotics.chassis.WheeledChassis;
 import lejos.robotics.navigation.MovePilot;
 
-// PilotRobot.java
-// 
-// Based on the SimpleRobot class, this provides access to the
-// sensors, and constructs a MovePilot to control the robot.
-//
-// Terry Payne
-// 1st October 2018
-//
-
+/**
+ * @author Suhail Munshi
+ *
+ */
 public class PilotRobot {
-	//sensors
+	/*Private sensors*/
 	private EV3UltrasonicSensor usSensor;
 	private EV3GyroSensor gSensor;
 	private EV3ColorSensor leftColor, rightColor;
+	private ColorAllocator color_identify = new ColorAllocator();
 	
-	private SampleProvider distSP, gyroSP, leftSP, rightSP; //leftSP, rightSP	
-	private float[] distSample, angleSample, leftSample, rightSample; //removed leftSample, rightSample
-	private boolean correct_at_black_line = false;
-	private static String whichBehavior;
-	boolean correct_head_turn;
-	boolean rotateAction;
+	/*Sample providers and sample declaration*/
+	private SampleProvider distSP, gyroSP, leftSP, rightSP;
+	private float[] distSample, angleSample,  leftSample, rightSample;
 
-	static int correctionIncrementCount = 0;
 	static char[] direction = {'N', 'E', 'S', 'W'};
-	static Cell[][] grid = new Cell[8][9];
-	static ArrayList<Cell> cellList = new ArrayList<Cell>();
-	static int cellIndex = 0;
-	static boolean changedValues = true;
-	
-	public static List<AStar.Node> list;
 	public static int listIndex = 0;
 	
-	public static int finalGoalx = 1;
-	public static int finalGoaly = 1;
-	static boolean reached = false;
-	
+	/*
+	 * Constants for use in any class
+	 * */
 	static final int ACCELERATION = 20;
 	static final int DECELERATION = 100; 
 	static final int DISTANCE = 100;
-	static final int TOP_SPEED = 40;
+	static final int TOP_SPEED = 30;
 	static final int ANGULAR_ACCELERATION = 40;
 	static final double DISTANCE_FROM_THE_WALL = 0.07;
 	static final int ROTATE_HEAD_LEFT = 90;
@@ -67,79 +51,57 @@ public class PilotRobot {
 	static final int ROTATE_HEAD_CENTER = 0;
 	static final int ROTATE_ROBOT_RIGHT = 30;
 	static final int ROTATE_ROBOT_LEFT = -30;
-	static final int SAMPLE_SIZE = 50;
-	static boolean nextCoordinate = true;
-	static boolean travelledForward13 = false;
-	static boolean isRotating = false;
-	static float average;
-	static boolean runMove = false;
-	static GraphicsLCD lcd = LocalEV3.get().getGraphicsLCD();
-	private ColorIdentifier colorID = new ColorIdentifier();
-	static String currentMode = "Letters";
-	public static boolean finished;
-
+	static final int SAMPLE_SIZE = 80;
 	
 	private MovePilot pilot;	
 
-
+	
+	/*
+	 * PilotRobot Constructor
+	 * */
 	public PilotRobot() {
 		Brick myEV3 = BrickFinder.getDefault();
-		Navigate navigate = new Navigate(1,1, this);
-		//Motor.C.rotate(90);
 		
+		/*
+		 * Initialise sensors
+		 * */
 		usSensor = new EV3UltrasonicSensor(myEV3.getPort("S3"));
 		gSensor = new EV3GyroSensor(myEV3.getPort("S2"));
 		leftColor = new EV3ColorSensor(myEV3.getPort("S1"));
 		rightColor = new EV3ColorSensor(myEV3.getPort("S4"));
-
+		
+		/*
+		 * Create sample providers
+		 * */
 		leftSP = leftColor.getRGBMode();
 		rightSP = rightColor.getRGBMode();
 		distSP = usSensor.getDistanceMode();
 		gyroSP = gSensor.getAngleMode();
 		
-		leftSample = new float[leftSP.sampleSize()];		// Size is 1
-		rightSample = new float[rightSP.sampleSize()];		// Size is 1
-		distSample = new float[distSP.sampleSize()];		// Size is 1
-		angleSample = new float[gyroSP.sampleSize()];	// Size is 1
+		/*Create samples of size 1*/
+		leftSample = new float[leftSP.sampleSize()];
+		rightSample = new float[rightSP.sampleSize()];
+		distSample = new float[distSP.sampleSize()];
+		angleSample = new float[gyroSP.sampleSize()];
 
-		Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 4.05).offset(-4.9);
-		Wheel rightWheel = WheeledChassis.modelWheel(Motor.D, 4.05).offset(4.9);
-		
-		
+		/*
+		 * Robot Chassis construction
+		 * */
+		Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 4.253133).offset(-5.58227848);
+		Wheel rightWheel = WheeledChassis.modelWheel(Motor.D, 4.253133).offset(5.58227848);
 		Chassis myChassis = new WheeledChassis( new Wheel[]{leftWheel, rightWheel}, WheeledChassis.TYPE_DIFFERENTIAL);
-
 	    pilot = new MovePilot(myChassis);
+	    
+	    /*Set default movement values*/
 	    pilot.setAngularAcceleration(ANGULAR_ACCELERATION);
 	    pilot.setLinearSpeed(TOP_SPEED);
+	    
 		// Reset the value of the gyroscope to zero
 		gSensor.reset();
 		
-		//Work ya bastud
-		for(int i =0; i< grid.length; i ++ ) {
-			for(int j=0;j<grid[0].length;j++) {
-				grid[i][j] = new Cell(i,j);
-			}
-		}
-		
-		 cellList.add(PilotRobot.grid[1][1]);
-		 cellList.add(PilotRobot.grid[6][1]);
-		 cellList.add(PilotRobot.grid[6][4]);
-		 cellList.add(PilotRobot.grid[1][4]);
-		 cellList.add(PilotRobot.grid[1][7]);
-		 cellList.add(PilotRobot.grid[6][7]);
-		
 	}
 	
-	public static Cell[][] getGridCopy() throws CloneNotSupportedException{
-		Cell[][] newGrid = new Cell[8][9];
-		for(int col = 0; col < 8; col++) {
-			for(int row = 0; row < 9; row++) {
-				newGrid[col][row] = PilotRobot.grid[col][row].clone();
-			}
-		}
-		return newGrid;
-	}
-	
+	/*Closes robot*/
 	public void closeRobot() {
 		leftColor.close();
 		rightColor.close();
@@ -147,113 +109,169 @@ public class PilotRobot {
 		gSensor.close();
 	}
 	
-	// Get the colour from the colour sensor
-		public Color getLeftColourSensor() {
-	    	leftSP.fetchSample(leftSample, 0);
-	    	
-	    	Color left = colorID.findNearest(leftSample);
-	    	return left;
+	/*Fetches colour int from left colour sensor*/
+	public Color getLeftColourSensor() {
+    	leftSP.fetchSample(leftSample, 0);
+    	Color left = color_identify.findClosest(leftSample);
+    	return left;
+	}
+	
+	public float[] getRGB() {
+		leftSP.fetchSample(leftSample, 0);
+		rightSP.fetchSample(rightSample, 0);
+		float[] avg = {0.0f,0.0f,0.0f};
+		for(int i=0;i<3;i++) {
+			avg[i] = (leftSample[i] + rightSample[i])/2;
 		}
+		return avg;
+	}
+	
+	/*Fetches colour int from right color sensor*/
+	public Color getRightColourSensor() {
+		rightSP.fetchSample(rightSample, 0);
+    	Color right = color_identify.findClosest(rightSample);
+    	return right;
+	}
+	
+	public float[] sampleColors(){
 		
-		// Get the colour from the colour sensor
-		public Color getRightColourSensor() {
-	    	rightSP.fetchSample(rightSample, 0);
-	    	
-	    	Color right = colorID.findNearest(rightSample);
-	    	return right;
+		float values[][] = new float[1000][3];
+		float red = 0.0f;
+		float green = 0.0f;
+		float blue = 0.0f;
+		
+		
+		for(int i = 0; i <1000;i++) {
+			values[i] = getRGB();
 		}
 	
+		
+		for (float v[] : values) {
+			red += v[0];
+			green += v[1];
+			blue += v[2];
+		}
+		
+		red = red/1000;
+		blue = blue/1000;
+		green = green/1000;
+		
+		float rgb[] = {0.0f,0.0f,0.0f};
+		rgb[0] = red;
+		rgb[1] = green;
+		rgb[2] = blue;
+		
+		return rgb;
+		
+	}
+	
+	/*Sample colours and return a value*/
+	public Color getColor() {
+		float rgb[] = sampleColors();
+		Color sample = color_identify.findClosest(rgb);
+		return sample;
+	}
+	
+	/*Fetches distance from ultrasound*/
 	public float getDistance() {
     	distSP.fetchSample(distSample, 0);
     	return distSample[0];
 	}
 
+	/*Returns angle using gyroscope*/
 	public float getAngle() {
     	gyroSP.fetchSample(angleSample, 0);
     	return angleSample[0];
 	}
 	
+	/*Returns pilot for controlling movement*/
 	public MovePilot getPilot() {
 		return pilot;
 	}
 	
-	public void rotate(int value) {
-		isRotating = true;
-		int initialAngle = (int)getAngle(); //gyroscope
-		
-		int finalAngle = (int)getAngle();
-		int difference = (int)(finalAngle - initialAngle);
-		
-		while (value != difference) {
-			finalAngle = (int)getAngle();
-			difference = finalAngle - initialAngle;
-			pilot.rotate(value - difference);
-			
+	/*
+	 * Method for detecting obstacles straight ahead
+	 * Return obstacle boolean
+	 * */
+	public boolean obstacleAhead() {
+		if(getDistanceWithSampling() <= 0.06) {
+			return true;
 		}
-		isRotating = false;
-		setCorrectBlackLines(true);
+		return false;
 	}
 	
-	//Rotate head of the ultrasound sensor
+	/*
+	 * Checks if obstacle appears while moving, returns bool
+	 * */
+	public boolean checkObstacleAheadWhileMoving() {
+		boolean obstacle = false;
+		while(pilot.isMoving()) {
+			if(obstacleAhead()) {
+				return true;
+			}
+		}
+		return obstacle;
+	}
+	
+	/*
+	 * Rotates head of ultra sound sensor to specified position
+	 * */
 	public void rotateHead(int position) {
 		Motor.C.rotateTo(position);
 	}
 	
-	public void setCorrectBlackLines(boolean value) {
-		pilot.setAngularAcceleration(100);
-//		if(correct_at_black_line == true && value == false) {
-//			Navigate.move();
-//		}
-		correct_at_black_line = value;
-		
-		pilot.setAngularAcceleration(ANGULAR_ACCELERATION);
-	}
-	
-	public boolean getCorrectBlackLines() {
-		return correct_at_black_line;
-	}
-	
-	public void setBehavior(String behavior) {
-		whichBehavior = behavior;
-	}
-	
-	public static String getBehavior() {
-		return whichBehavior;
-	}
-	
-	public static float getTravelDistance() {
+	/*
+	 * Get the distance the wheels have travelled 
+	 * Using Pi x diameter x turns
+	 * */
+	public static double getTravelDistance() {
 		float numberOfRevolutionsB = Motor.B.getTachoCount();
 		float numberOfRevolutionsD = Motor.D.getTachoCount();
 		
-		float avgRevolutions = (numberOfRevolutionsB + numberOfRevolutionsD)/2;
+		float avgRevolutions = (numberOfRevolutionsB + numberOfRevolutionsD)/720;
 		
-		float distance = (float)(Math.PI * 4.05 * avgRevolutions);
+		double distance = (double)(Math.PI * 4.2531333 * avgRevolutions);
 		
 		return distance;
 	}
 	
-	public boolean getMoving() {
-		return getPilot().isMoving();
-	}
-	
-	public void resetTachoCount() {
+	/*
+	 * Reset wheel turn count to 0
+	 * */
+	public static void resetTachoCount() {
 		Motor.B.resetTachoCount();
 		Motor.D.resetTachoCount();	
 	}
 	
-	public float distanceSample() {
+	/*
+	 * Average number of times the wheels have turned
+	 * */
+	public static float returnRevolutions() {
+		float numberOfRevolutionsB = Motor.B.getTachoCount();
+		float numberOfRevolutionsD = Motor.D.getTachoCount();
+		float avgRevolutions = (numberOfRevolutionsB + numberOfRevolutionsD)/720;
+		
+		return avgRevolutions;
+	}
+	
+	/*
+	 * Get Distance in meters using appropriate sampling of average
+	 * @return float average_distance
+	 * */
+	public float getDistanceWithSampling() {
 		float currentDistance = getDistance();
-		average = 0;
 		float[] distances = new float[SAMPLE_SIZE];
-		int m = 0;
+		
 		float sum = 0;
+		int ptr = 0;
 		int count = 0;
-		while (m < distances.length) {
+		
+		while (ptr < distances.length) {
 			if(currentDistance > 0 && currentDistance != Float.POSITIVE_INFINITY) {
-				distances[m] = getDistance();
-				m++;
+				distances[ptr] = getDistance();
+				ptr++;
 			}
-			count++;
+			count ++;
 			if (count > SAMPLE_SIZE*3) {
 				return 100;
 			}
@@ -263,13 +281,16 @@ public class PilotRobot {
 			sum += d;
 		}
 		
-		average = sum/distances.length;
-		
-
-		return average;
+		//return average distance
+		return sum/distances.length;
+	}
+	
+	/*
+	 * Reset gyroscope
+	 * */
+	public void resetGyro() {
+		// TODO Auto-generated method stub
+		gSensor.reset();
 	}	
 }
 
-//while left color is 7 and right color is not 7
-//rotate towaREDS TH LEFT BY 5 DEGREES
-//THEN WHILE left is not 7 and right is 7, rotate positive 5 degrees

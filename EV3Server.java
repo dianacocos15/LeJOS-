@@ -1,60 +1,90 @@
+
 import java.io.*;
 import java.net.*;
 
 public class EV3Server extends Thread {
+	public static final int port = 1234;
+	DataOutputStream dOut;
+	OutputStream out;
 	
-public static final int port = 1234;
-	static DataOutputStream dOut;
-	static ServerSocket server;
+	DataInputStream dIn;
+	InputStream in;
 	
+	ServerSocket server;
+	Socket client;
 	
-	public void run(){
-		try {
-			server = new ServerSocket(port);
-			//System.out.println("Awaiting client..");
-			Socket client = server.accept();
-			//System.out.println("CONNECTED");
-			OutputStream out = client.getOutputStream();
-			dOut = new DataOutputStream(out);
-		}catch(IOException e) {
+	/*Thread run function, loops.*/
+	public void run(PilotRobot me){
+		
+		System.out.println("Connecting...");
+		
+		/*Ensure connected to client*/
+		while(true) {
+			if(connectedToClient()) {
+				break;
+			}
+		}
+		
+		System.out.println("Connected!");
+		
+		/*Retrieve action commands and performs them. Then send appropriate values.*/
+		ActionHandler action = new ActionHandler(me);
+		while(true) {
+			String action_code = readValue();
+			
+			if(action_code != null) {
+				String response = action.performAction(action_code);
+				try {
+					dOut.writeUTF(response);
+				} catch (IOException e) {}
+			}
 			
 		}
 		
-		while(true) {
-			for (int x = 0; x < PilotRobot.grid.length; x++) {
-				for(int y = 0; y < PilotRobot.grid[0].length; y++) {
-					try {
-						double holder = PilotRobot.grid[x][y].returnProbability();
-						String probability = String.valueOf(holder);
-						dOut.writeUTF(probability);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-					}
-				}
-			}
-			
+	}
+	
+	/*
+	 * Reads a action code*/
+	public String readValue() {
+		String action_code = null;
+		while (true) {
 			try {
-				dOut.writeUTF(Navigate.getOrientationAsString());
-				dOut.writeUTF(Navigate.currentPosition());
-				dOut.writeUTF(Navigate.getX());
-				dOut.writeUTF(Navigate.getY());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+				action_code = dIn.readUTF();
+			} catch (IOException e) {}
 			
-			try {
-				dOut.flush();
-				server.close();
-			}
-			catch (IOException e) {}
-			try{
-				sleep(800);
-			}
-			catch(Exception e){
-				// We have no exception handling
-				;
+			if(action_code != null) {
+				return action_code;
 			}
 		}
 	}
+	
+	
+	/*Tries to connect and returns connection status*/
+	public boolean connectedToClient() {
+		try {
+			
+			/*Connect to client*/
+			server = new ServerSocket(port);
+			client = server.accept();
+			
+			/*Initialise output streams*/
+			out = client.getOutputStream();
+			dOut = new DataOutputStream(out);
+			
+			/*Initialise input streams*/
+			in = client.getInputStream();
+			dIn = new DataInputStream(in);
+			
+			return client.isConnected();
+		}catch(IOException e) {
+			System.out.println(e);
+		}
+		
+		return false;
+	}
+	
+	
+	
+	
+	
 }
